@@ -1,0 +1,78 @@
+import random
+
+
+def ask_food_preference(first_option, second_option):
+    print(f"Do you prefer: {first_option} or {second_option}?")
+    choice = int(input("Enter 1 for the first option or 2 for the second: "))
+    return choice
+
+
+def gather_food_preferences(food_storage):
+    # choice_data: list of (preferred-item, other-item) tuples
+    choice_data = []
+    first_food = random.choice(food_storage)
+    
+    for _ in range(len(food_storage) - 1):
+        second_food = random.choice([
+            food for food in food_storage if food != first_food
+        ])
+        choice = ask_food_preference(first_food, second_food)
+        
+        if choice == 2:
+            first_food, second_food = second_food, first_food
+        
+        choice_data.append((first_food, second_food))
+        food_storage.remove(second_food)
+    
+    food_storage.remove(first_food)
+    return choice_data
+
+
+def organize_food_preferences(choice_data):
+    food_dict = {}
+    for choice_tuple in choice_data:
+        food1, food2 = choice_tuple
+        
+        if food1 not in food_dict:
+            # Use a different method with less impact on new items
+            food_dict[food1] = food_dict.get(food2, 0) + 1
+        else:
+            food_dict[food1] += 1
+        
+        if food2 not in food_dict:
+            food_storage.append(food2)
+    
+    return sorted(food_dict.items(), key=lambda x: x[1], reverse=True)
+
+
+def update_profile_dict(organized_foods, profile_dict):
+    for food, count in organized_foods:
+        if food in profile_dict:
+            profile_dict[food] += count
+        else:
+            profile_dict[food] = count
+    
+    return dict(sorted(profile_dict.items(), key=lambda item: item[1], reverse=True))
+
+
+if __name__ == '__main__':
+    food_storage = [
+        "pizza",
+        "chicken",
+        "rice",
+        "noodles",
+        "tandoori_chicken",
+        "spaghetti",
+        "sushi",
+        "steak",
+        "hamburger",
+        "tacos",
+        "barbecue_ribs",
+        "dumplings",
+        "soup"
+    ]
+    choice_data = gather_food_preferences(food_storage)
+    organized_foods = organize_food_preferences(choice_data)
+    profile_dict = {'barbecue_ribs': 12, 'steak': 11, 'hamburger': 8, 'pizza': 6, 'tacos': 4}
+    profile_dict = update_profile_dict(organized_foods, profile_dict)
+    print(profile_dict)
