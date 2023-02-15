@@ -206,7 +206,7 @@ Project Link: [https://github.com/zkisaboss/Food-App](https://github.com/zkisabo
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-* []()
+* [PEP 8 Style Guide](https://peps.python.org/pep-0008)
 * []()
 * []()
 
