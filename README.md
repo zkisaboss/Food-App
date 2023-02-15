@@ -195,7 +195,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email@email_client.com
+Zachary Kosove - [@twitter_handle](https://twitter.com/twitter_handle) - zacharykosove@gmail.com
 
 Project Link: [https://github.com/zkisaboss/Food-App](https://github.com/zkisaboss/Food-App)
 
