@@ -37,7 +37,7 @@
 <h3 align="center">Food App</h3>
 
   <p align="center">
-    project_description
+    Alpha Testing My Food Website's Backend
     <br />
     <a href="https://github.com/zkisaboss/Food-App"><strong>Explore the docs »</strong></a>
     <br />
