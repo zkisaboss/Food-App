@@ -34,10 +34,10 @@
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
-<h3 align="center">Food App</h3>
+<h3 align="center">App Info</h3>
 
   <p align="center">
-    Alpha Testing My Food Website's Backend
+    Backend Testing For My Food Website
     <br />
     <a href="https://github.com/zkisaboss/Food-App"><strong>Explore the docs »</strong></a>
     <br />
