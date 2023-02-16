@@ -42,7 +42,7 @@
     <a href="https://github.com/zkisaboss/Food-App"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/zkisaboss/Food-App">View Demo</a>
+    <a href="https://github.com/zkisaboss/Food-App">View Frontend</a>
     ·
     <a href="https://github.com/zkisaboss/Food-App/issues">Report Bug</a>
     ·
