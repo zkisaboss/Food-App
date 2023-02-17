@@ -154,11 +154,18 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Feature 1
-- [ ] Feature 2
-- [ ] Feature 3
-    - [ ] Nested Feature
-
+- [ ] Webflow UI (Pages)
+    - [ ] Login Page
+    - [ ] Landing Page
+    - [ ] Decision Page
+    - [ ] Menu (Template)
+    - [ ] SEO descriptions
+    - [ ] Search-Compatability (Geolocatino)
+- [ ] Backend
+    - [ ] Local Storage
+        - [ ] 
+    - [ ] Global Database
+        - [ ] 
 See the [open issues](https://github.com/github_username/repo_name/issues) for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
