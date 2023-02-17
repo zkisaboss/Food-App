@@ -163,9 +163,12 @@ _For more examples, please refer to the [Documentation](https://example.com)_
     - [ ] Search-Compatability (Geolocatino)
 - [ ] Backend
     - [ ] Local Storage
-        - [ ] 
+        - [ ] 1. Grab Global Profile
+        - [ ] 2. Save Sessions 
+        - [ ] 3. Upload to Global
     - [ ] Global Database
-        - [ ] 
+        - [ ] Profiles
+        - [ ] Profile Similarity Algorithm 
 See the [open issues](https://github.com/github_username/repo_name/issues) for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
