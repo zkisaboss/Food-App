@@ -74,6 +74,7 @@ if __name__ == '__main__':
         "grilled salmon",
         "calamari",
     ]
+    
     profile_dict = {
         'steak': 14,
         'barbecue ribs': 11,
@@ -82,6 +83,7 @@ if __name__ == '__main__':
         'grilled salmon': 3,
         'rice': 1,
     }
+    
     choice_data = gather_food_preferences(food_storage)
     local_dict = store_session_data(choice_data)
     profile_dict = update_profile_dict(local_dict, profile_dict)
