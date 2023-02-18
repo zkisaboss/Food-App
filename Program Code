@@ -28,30 +28,24 @@ def gather_food_preferences(food_storage):
 
 
 def organize_food_preferences(choice_data):
-    food_dict = {}
+    local_dict = {}
     for choice_tuple in choice_data:
         food1, food2 = choice_tuple
         
-        if food1 not in food_dict:
+        if food1 not in local_dict:
             # Use a different method with less impact/bias on new items
-            food_dict[food1] = food_dict.get(food2, 0) + 1
+            local_dict[food1] = local_dict.get(food2, 0) + 1
         else:
-            food_dict[food1] += 1
+            local_dict[food1] += 1
         
-        if food2 not in food_dict:
+        if food2 not in local_dict:
             food_storage.append(food2)
     
-    return list(food_dict.items())
-
-
-def fetch_dict():
-    # Grabs Dict From Global Storage, return that dict's value
-    # Otherwise creates empty dict in storage and return that dict's value
-    return "joe mamma"
+    return local_dict
 
 
 def update_profile_dict(organized_foods, profile_dict):
-    for food, count in organized_foods:
+    for food, count in organized_foods.items():
         if food in profile_dict:
             profile_dict[food] += count
         else:
@@ -81,8 +75,8 @@ if __name__ == '__main__':
         "calamari",
     ]
     choice_data = gather_food_preferences(food_storage)
-    organized_foods = organize_food_preferences(choice_data)
+    local_dict = organize_food_preferences(choice_data)
     profile_dict = {'steak': 14, 'barbecue ribs': 11, 'pulled pork': 10, 'chicken': 7, 'grilled salmon': 3, 'rice': 1}
-    profile_dict = update_profile_dict(organized_foods, profile_dict)
+    profile_dict = update_profile_dict(local_dict, profile_dict)
     # Add function here that stores updated profile_dict in storage
     print(profile_dict)
