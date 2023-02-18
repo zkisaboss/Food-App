@@ -78,5 +78,5 @@ if __name__ == '__main__':
     local_dict = organize_food_preferences(choice_data)
     profile_dict = {'steak': 14, 'barbecue ribs': 11, 'pulled pork': 10, 'chicken': 7, 'grilled salmon': 3, 'rice': 1}
     profile_dict = update_profile_dict(local_dict, profile_dict)
-    # Add function here that stores updated profile_dict in storage
     print(profile_dict)
+    
