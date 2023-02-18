@@ -1,8 +1,8 @@
 import random
 
 
-def ask_food_preference(first_option, second_option):
-    print(f"Do you prefer: {first_option} or {second_option}?")
+def ask_user_preference(first_choice, second_choice):
+    print(f"Do you prefer: {first_choice} or {second_choice}?")
     choice = int(input("Enter 1 for the first option or 2 for the second: "))
     return choice
 
@@ -15,7 +15,7 @@ def gather_food_preferences(food_storage):
         second_food = random.choice([
             food for food in food_storage if food != first_food
         ])
-        choice = ask_food_preference(first_food, second_food)
+        choice = ask_user_preference(first_food, second_food)
         
         if choice == 2:
             first_food, second_food = second_food, first_food
@@ -24,10 +24,10 @@ def gather_food_preferences(food_storage):
         food_storage.remove(second_food)
     
     food_storage.remove(first_food)
-    return choice_data # A list of (preferred-item, other-item) tuples
+    return choice_data
 
 
-def organize_food_preferences(choice_data):
+def store_session_data(choice_data):
     local_dict = {}
     for choice_tuple in choice_data:
         food1, food2 = choice_tuple
@@ -74,9 +74,16 @@ if __name__ == '__main__':
         "grilled salmon",
         "calamari",
     ]
+    profile_dict = {
+        'steak': 14,
+        'barbecue ribs': 11,
+        'pulled pork': 10,
+        'chicken': 7,
+        'grilled salmon': 3,
+        'rice': 1,
+    }
     choice_data = gather_food_preferences(food_storage)
-    local_dict = organize_food_preferences(choice_data)
-    profile_dict = {'steak': 14, 'barbecue ribs': 11, 'pulled pork': 10, 'chicken': 7, 'grilled salmon': 3, 'rice': 1}
+    local_dict = store_session_data(choice_data)
     profile_dict = update_profile_dict(local_dict, profile_dict)
     print(profile_dict)
     
