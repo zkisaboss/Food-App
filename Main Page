@@ -27,13 +27,12 @@ def gather_food_preferences(food_storage):
     return choice_data
 
 
-def store_session_data(choice_data):
+def store_local(choice_data):
     local_dict = {}
     for choice_tuple in choice_data:
         food1, food2 = choice_tuple
         
         if food1 not in local_dict:
-            # Use a different method with less impact/bias on new items
             local_dict[food1] = local_dict.get(food2, 0) + 1
         else:
             local_dict[food1] += 1
@@ -44,14 +43,24 @@ def store_session_data(choice_data):
     return local_dict
 
 
-def update_profile_dict(organized_foods, profile_dict):
-    for food, count in organized_foods.items():
-        if food in profile_dict:
-            profile_dict[food] += count
+def update_global(local_dict, global_dict):
+    for food, count in local_dict.items():
+        if food in global_dict:
+            global_dict[food] += count
         else:
-            profile_dict[food] = count
+            global_dict[food] = count
     
-    return dict(sorted(profile_dict.items(), key=lambda item: item[1], reverse=True))
+    return dict(sorted(global_dict.items(), key=lambda item: item[1], reverse=True))
+
+
+def confirmation():
+    print(f"\nDo you want to re-try or continue?")
+    answer = int(input("Enter 1 to Re-Try or 2 to Continue: "))
+
+    if answer == 1:
+        return False
+    else: 
+        return True
 
 
 if __name__ == '__main__':
@@ -75,7 +84,7 @@ if __name__ == '__main__':
         "calamari",
     ]
     
-    profile_dict = {
+    global_dict = {
         'steak': 14,
         'barbecue ribs': 11,
         'pulled pork': 10,
@@ -85,7 +94,20 @@ if __name__ == '__main__':
     }
     
     choice_data = gather_food_preferences(food_storage)
-    local_dict = store_session_data(choice_data)
-    profile_dict = update_profile_dict(local_dict, profile_dict)
-    print(profile_dict)
+    local_dict = store_local(choice_data)
+    global_dict = update_global(local_dict, global_dict)
+    answer = confirmation()
+
+    if answer == False: 
+        print("Re-Run Main Page Decision Interface")
+    
+    # Search Results Using Geolocation
+        # Fetch Geolocation
+        # Fetch Stores <=15m from Geolocation 
+        # Filter Using element[-1] of local dict
+        # Sort filtered by most stars to least stars
+    """
+    Ask a data scientist/analyst to reccommend a system for sorting the menus
+    """
+    
     
