@@ -57,10 +57,10 @@ def confirmation():
     print(f"\nDo you want to re-try or continue?")
     answer = int(input("Enter 1 to Re-Try or 2 to Continue: "))
 
-    if answer == 1:
-        return False
-    else: 
+    if answer == 2:
         return True
+    else: 
+        return False
 
 
 if __name__ == '__main__':
