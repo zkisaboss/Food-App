@@ -10,37 +10,37 @@ def ask_user_preference(first_choice, second_choice):
 def gather_food_preferences(food_storage):
     choice_data = []
     first_food = random.choice(food_storage)
-    
+
     for _ in range(min(14, len(food_storage) - 1)):
         second_food = random.choice([
             food for food in food_storage if food != first_food
         ])
         choice = ask_user_preference(first_food, second_food)
-        
+
         if choice == 2:
             first_food, second_food = second_food, first_food
-        
+
         choice_data.append((first_food, second_food))
         food_storage.remove(second_food)
-    
+
     food_storage.remove(first_food)
     return choice_data
 
 
-def store_local(choice_data):
+def store_local(choice_data, food_storage):
     local_dict = {}
     for choice_tuple in choice_data:
         food1, food2 = choice_tuple
-        
+
         if food1 not in local_dict:
             local_dict[food1] = local_dict.get(food2, 0) + 1
         else:
             local_dict[food1] += 1
-        
+
         if food2 not in local_dict:
             food_storage.append(food2)
-    
-    return local_dict
+
+    return local_dict, food_storage
 
 
 def update_global(local_dict, global_dict):
@@ -49,7 +49,7 @@ def update_global(local_dict, global_dict):
             global_dict[food] += count
         else:
             global_dict[food] = count
-    
+
     return dict(sorted(global_dict.items(), key=lambda item: item[1], reverse=True))
 
 
@@ -59,7 +59,7 @@ def confirmation():
 
     if answer == 2:
         return True
-    else: 
+    else:
         return False
 
 
@@ -83,7 +83,7 @@ if __name__ == '__main__':
         "grilled salmon",
         "calamari",
     ]
-    
+
     global_dict = {
         'steak': 14,
         'barbecue ribs': 11,
@@ -92,23 +92,25 @@ if __name__ == '__main__':
         'grilled salmon': 3,
         'rice': 1,
     }
-    
-    choice_data = gather_food_preferences(food_storage)
-    local_dict = store_local(choice_data)
-    global_dict = update_global(local_dict, global_dict)
-    answer = confirmation()
-    
-    if answer == False: 
-        print("Re-Run Main Page Decision Interface")
-        # Syntax for repeating the script
+
+    while True:
+        choice_data = gather_food_preferences(food_storage)
+        local_dict, food_storage = store_local(choice_data, food_storage)
+        global_dict = update_global(local_dict, global_dict)
+        user_confirmation = confirmation()
+
+        if user_confirmation:
+            break
+
+    # Syntax for repeating the script
+    print("Re-Run Main Page Decision Interface")
     
     # Search Results Using Geolocation
-        # Fetch Geolocation
-        # Fetch Stores <=15m from Geolocation 
-        # Filter Using element[-1] of local dict
-        # Sort filtered by most stars to least stars
+    # Fetch Geolocation
+    # Fetch Stores <=15m from Geolocation
+    # Filter Using element[-1] of local dict
+    # Sort filtered by most stars to least stars
+
     """
-    Ask a data scientist/analyst to reccommend a system for sorting the menus
+    Ask a data scientist/analyst to recommend a system for sorting the menus
     """
-    
-    
