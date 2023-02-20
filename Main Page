@@ -97,9 +97,10 @@ if __name__ == '__main__':
     local_dict = store_local(choice_data)
     global_dict = update_global(local_dict, global_dict)
     answer = confirmation()
-
+    
     if answer == False: 
         print("Re-Run Main Page Decision Interface")
+        # Syntax for repeating the script
     
     # Search Results Using Geolocation
         # Fetch Geolocation
