@@ -97,13 +97,13 @@ if __name__ == '__main__':
         choice_data = gather_food_preferences(food_storage)
         local_dict, food_storage = store_local(choice_data, food_storage)
         global_dict = update_global(local_dict, global_dict)
+        print(global_dict)
         user_confirmation = confirmation()
 
         if user_confirmation:
             break
 
-    # Syntax for repeating the script
-    print("Re-Run Main Page Decision Interface")
+    print(global_dict)
     
     # Search Results Using Geolocation
     # Fetch Geolocation
