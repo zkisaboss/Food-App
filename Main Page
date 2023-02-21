@@ -1,4 +1,28 @@
 import random
+import json
+
+
+def create_account():
+    username = input("Enter a username: ")
+    password = input("Enter a password: ")
+    account = {username: password}
+    with open(f"{username}.json", "w") as f:
+        json.dump(account, f)
+    print("Account created successfully!")
+
+
+def login():
+    username = input("Enter your username: ")
+    password = input("Enter your password: ")
+    try:
+        with open(f"{username}.json", "r") as f:
+            account = json.load(f)
+            if account[username] == password:
+                print("Login successful!")
+            else:
+                print("Invalid username/password combination")
+    except FileNotFoundError:
+        print("Account does not exist.")
 
 
 def ask_user_preference(first_choice, second_choice):
@@ -54,13 +78,9 @@ def update_global(local_dict, global_dict):
 
 
 def confirmation():
-    print(f"\nDo you want to re-try or continue?")
+    print("Do you want to re-try or continue?")
     answer = int(input("Enter 1 to Re-Try or 2 to Continue: "))
-
-    if answer == 2:
-        return True
-    else:
-        return False
+    return answer == 2
 
 
 if __name__ == '__main__':
@@ -94,10 +114,20 @@ if __name__ == '__main__':
     }
 
     while True:
+        choice = input("Enter '1' to create a new account or '2' to login to an existing one: ")
+        if choice == '1':
+            create_account()
+            break
+        elif choice == '2':
+            login()
+            break
+        else:
+            print("Invalid choice. Please enter '1' or '2'.")
+
+    while True:
         choice_data = gather_food_preferences(food_storage)
         local_dict, food_storage = store_local(choice_data, food_storage)
         global_dict = update_global(local_dict, global_dict)
-        print(global_dict)
         user_confirmation = confirmation()
 
         if user_confirmation:
