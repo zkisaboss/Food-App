@@ -22,8 +22,8 @@ class Session:
         "grilled salmon",
         "calamari",
     ]
-
-    def create_account(self):
+    @staticmethod
+    def create_account():
         username = input("Enter a username: ")
         password = input("Enter a password: ")
         account = {username: password, "global_dict": {}}
@@ -34,21 +34,28 @@ class Session:
 
     @staticmethod
     def login():
-        while True:
+        login_attempts = 0
+
+        while login_attempts < 3:
             username = input("Enter your username: ")
             password = input("Enter your password: ")
+
             try:
                 with open(f"Profiles/{username}.json", "r") as f:
                     account = json.load(f)
-                    if account[username] == password:
-                        print("Login successful!")
-                    else:
-                        print("Invalid username/password combination")
-                        continue
+
+                if account[username] == password:
+                    print("Login successful!")
+                    return username
+                else:
+                    print("Invalid username/password combination")
             except FileNotFoundError:
                 print("Account does not exist.")
-                continue
-            return username
+
+            login_attempts += 1
+
+        print("You've exceeded the number of login attempts")
+        raise SystemExit
 
     @staticmethod
     def ask_user_preference(first_option, second_option):

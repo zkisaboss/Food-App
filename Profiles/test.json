@@ -1,0 +1,10 @@
+{
+    "test": "password",
+    "global_dict": {
+        "steak": 14,
+        "barbecue ribs": 7,
+        "pizza": 4,
+        "chicken": 2,
+        "spaghetti": 1
+    }
+}
