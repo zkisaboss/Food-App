@@ -5,10 +5,11 @@ import json
 def create_account():
     username = input("Enter a username: ")
     password = input("Enter a password: ")
-    account = {username: password}
+    account = {username: password, "global_dict": {}}
     with open(f"{username}.json", "w") as f:
         json.dump(account, f)
     print("Account created successfully!")
+    return username
 
 
 def login():
@@ -23,6 +24,7 @@ def login():
                 print("Invalid username/password combination")
     except FileNotFoundError:
         print("Account does not exist.")
+    return username
 
 
 def ask_user_preference(first_choice, second_choice):
@@ -103,27 +105,22 @@ if __name__ == '__main__':
         "grilled salmon",
         "calamari",
     ]
-
-    global_dict = {
-        'steak': 14,
-        'barbecue ribs': 11,
-        'pulled pork': 10,
-        'chicken': 7,
-        'grilled salmon': 3,
-        'rice': 1,
-    }
-
+    
     while True:
         choice = input("Enter '1' to create a new account or '2' to login to an existing one: ")
         if choice == '1':
-            create_account()
+            username = create_account()
             break
         elif choice == '2':
-            login()
+            username = login()
             break
         else:
             print("Invalid choice. Please enter '1' or '2'.")
+    
+    with open(f"{username}.json", "r") as f:
+        global_dict = json.load(f)["global_dict"]
 
+    
     while True:
         choice_data = gather_food_preferences(food_storage)
         local_dict, food_storage = store_local(choice_data, food_storage)
@@ -133,7 +130,15 @@ if __name__ == '__main__':
         if user_confirmation:
             break
 
+    with open(f"{username}.json", "r+") as f:
+        account = json.load(f)
+        account["global_dict"] = global_dict
+        f.seek(0)
+        json.dump(account, f)
+        f.truncate()
+
     print(global_dict)
+    
     
     # Search Results Using Geolocation
     # Fetch Geolocation
