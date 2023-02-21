@@ -3,8 +3,6 @@ import random
 
 
 class Session:
-    storage = "Profiles"
-
     foods = [
         "pizza",
         "chicken",
@@ -29,25 +27,28 @@ class Session:
         username = input("Enter a username: ")
         password = input("Enter a password: ")
         account = {username: password, "global_dict": {}}
-        with open(f"{self.storage}/{username}.json", "w") as f:
+        with open(f"Profiles/{username}.json", "w") as f:
             json.dump(account, f, indent=4, separators=(',', ': '))
         print("Account created successfully!")
         return username
 
     @staticmethod
     def login():
-        username = input("Enter your username: ")
-        password = input("Enter your password: ")
-        try:
-            with open(f"Profiles/{username}.json", "r") as f:
-                account = json.load(f)
-                if account[username] == password:
-                    print("Login successful!")
-                else:
-                    print("Invalid username/password combination")
-        except FileNotFoundError:
-            print("Account does not exist.")
-        return username
+        while True:
+            username = input("Enter your username: ")
+            password = input("Enter your password: ")
+            try:
+                with open(f"Profiles/{username}.json", "r") as f:
+                    account = json.load(f)
+                    if account[username] == password:
+                        print("Login successful!")
+                    else:
+                        print("Invalid username/password combination")
+                        continue
+            except FileNotFoundError:
+                print("Account does not exist.")
+                continue
+            return username
 
     @staticmethod
     def ask_user_preference(first_option, second_option):
@@ -60,6 +61,8 @@ class Session:
         choice_data = []
         first_food = random.choice(self.foods)
 
+        # If range(len(self.foods) - 1) < 14: extra_iterations = (14 - (len(self.foods) - 1))
+        # extra_iterations will possibly grab items from the storage
         for _ in range(min(14, len(self.foods) - 1)):
             second_food = random.choice(
                 [food for food in self.foods if food != first_food]
@@ -82,6 +85,7 @@ class Session:
             food1, food2 = choice_tuple
 
             if food1 not in local_dict:
+                # Use another with less bias towards new items added to the list.
                 local_dict[food1] = local_dict.get(food2, 0) + 1
             else:
                 local_dict[food1] += 1
