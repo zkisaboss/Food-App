@@ -1,0 +1,11 @@
+{
+    "zachary": "1234",
+    "global_dict": {
+        "steak": 14,
+        "hamburger": 13,
+        "sushi": 9,
+        "grilled salmon": 8,
+        "barbecue ribs": 6,
+        "waffles": 5
+    }
+}

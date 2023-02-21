@@ -60,10 +60,10 @@ class Session:
         choice_data = []
         first_food = random.choice(self.foods)
 
-        for _ in range(min(3, len(self.foods) - 1)):
-            second_food = random.choice([
-                food for food in self.foods if food != first_food
-            ])
+        for _ in range(min(14, len(self.foods) - 1)):
+            second_food = random.choice(
+                [food for food in self.foods if food != first_food]
+            )
             choice = self.ask_user_preference(first_food, second_food)
 
             if choice == 2:
