@@ -1,21 +1,23 @@
 {
     "zachary": "1234",
     "global_dict": {
-        "steak": 29,
+        "soup": 40,
+        "tandoori chicken": 35,
+        "dumplings": 35,
+        "tacos": 33,
+        "waffles": 33,
+        "calamari": 33,
+        "steak": 32,
+        "pizza": 31,
         "spaghetti": 27,
-        "tandoori chicken": 27,
-        "soup": 26,
-        "tacos": 26,
-        "pizza": 25,
-        "dumplings": 24,
-        "waffles": 23,
-        "grilled salmon": 21,
-        "chicken": 18,
-        "hamburger": 17,
-        "barbecue ribs": 17,
-        "noodles": 15,
-        "calamari": 14,
-        "pulled pork": 13,
-        "sushi": 2
-    }
+        "noodles": 27,
+        "pulled pork": 26,
+        "grilled salmon": 26,
+        "barbecue ribs": 23,
+        "chicken": 22,
+        "hamburger": 19,
+        "sushi": 19,
+        "rice": 11
+    },
+    "global_pct_dict": {}
 }

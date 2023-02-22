@@ -1,0 +1,39 @@
+{
+    "billy": "123",
+    "global_dict": {
+        "rice": 14,
+        "hamburger": 13,
+        "barbecue ribs": 12,
+        "sushi": 11,
+        "spaghetti": 10,
+        "soup": 9,
+        "noodles": 8,
+        "tandoori chicken": 7,
+        "calamari": 6,
+        "pulled pork": 5,
+        "grilled salmon": 4,
+        "dumplings": 3,
+        "pizza": 2,
+        "tacos": 2,
+        "chicken": 1,
+        "steak": 1
+    },
+    "global_pct_dict": {
+        "rice": 12.962962962962962,
+        "hamburger": 12.037037037037036,
+        "barbecue ribs": 11.11111111111111,
+        "sushi": 10.185185185185185,
+        "spaghetti": 9.25925925925926,
+        "soup": 8.333333333333332,
+        "noodles": 7.4074074074074066,
+        "tandoori chicken": 6.481481481481481,
+        "calamari": 5.555555555555555,
+        "pulled pork": 4.62962962962963,
+        "grilled salmon": 3.7037037037037033,
+        "dumplings": 2.7777777777777777,
+        "pizza": 1.8518518518518516,
+        "tacos": 1.8518518518518516,
+        "chicken": 0.9259259259259258,
+        "steak": 0.9259259259259258
+    }
+}

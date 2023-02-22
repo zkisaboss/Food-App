@@ -1,0 +1,79 @@
+"""
+Bias To Caution:
+
+
+One bias suggests that users who have used the platform for longer
+are unfairly viewed as having favored certain items over others. This is 
+because the proportion of times an item was picked is not taken into 
+account, and instead the total lifetime picks are used to determine a 
+user's preference.
+
+Fix with function: prop_pct()
+
+
+The second bias suggest that 
+
+---------------------------------------------------------------------------
+
+---------------------------------------------------------------------------
+
+---------------------------------------------------------------------------
+"""
+d1 = {
+    "steak": 14,
+    "barbecue ribs": 7,
+    "pizza": 4,
+    "chicken": 2,
+    "spaghetti": 1
+}
+
+d2 = {
+    "hamburger": 14,
+    "barbecue ribs": 14,
+    "steak": 11,
+    "sushi": 7,
+    "pulled pork": 4,
+    "soup": 1
+}
+d3 = {
+    "soup": 40,
+    "tandoori chicken": 35,
+    "dumplings": 35,
+    "tacos": 33,
+    "waffles": 33,
+    "calamari": 33,
+    "steak": 32,
+    "pizza": 31,
+    "spaghetti": 27,
+    "noodles": 27,
+    "pulled pork": 26,
+    "grilled salmon": 26,
+    "barbecue ribs": 23,
+    "chicken": 22,
+    "hamburger": 19,
+    "sushi": 19,
+    "rice": 11
+}
+
+
+def prop_pct(d):
+    """ converts values to percentages based on proportion to total """
+    total_picks = sum(d.values())
+    return {key: d[key] / total_picks * 100 for key in d}
+
+
+print(prop_pct(d3))
+print(d3)
+
+
+def num_sim(n1, n2):
+    """ calculates a similarity score between 2 numbers """
+    sim = 1 - abs(n1 - n2) / (n1 + n2)
+    return f"The similarity of {n1} to {n2} is {round(sim * 100, 2)}% ({int(sim * (n1+n2))}/{n1+n2})."
+
+
+print(num_sim(14, 10))  # 83.33% Similarity or 5/6
+print(num_sim(14, 19))  # 84.84% Similarity or 28/33
+
+print(num_sim(14, 10000))  # The similarity of 14 to 10000 is 0.28% (27/10014).
+print(num_sim(14, 0))      # The similarity of 14 to 0 is 0.0% (0/14).
