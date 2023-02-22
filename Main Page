@@ -22,6 +22,7 @@ class Session:
         "grilled salmon",
         "calamari",
     ]
+
     @staticmethod
     def create_account():
         username = input("Enter a username: ")
@@ -64,16 +65,19 @@ class Session:
             input("Enter 1 for the first option or 2 for the second: "))
         return choice
 
-    def gather_food_preferences(self, foods):
+    def gather_food_preferences(self):
         choice_data = []
         first_food = random.choice(self.foods)
+        list_length = len(self.foods) - 1
 
-        # If range(len(self.foods) - 1) < 14: extra_iterations = (14 - (len(self.foods) - 1))
-        # extra_iterations will possibly grab items from the storage
-        for _ in range(min(14, len(self.foods) - 1)):
-            second_food = random.choice(
-                [food for food in self.foods if food != first_food]
-            )
+        for _ in range(min(14, list_length)):
+            second_food_options = [
+                food for food in self.foods if food != first_food]
+
+            if not second_food_options:
+                break  # No more food options available
+
+            second_food = random.choice(second_food_options)
             choice = self.ask_user_preference(first_food, second_food)
 
             if choice == 2:
@@ -83,6 +87,35 @@ class Session:
             self.foods.remove(second_food)
 
         self.foods.remove(first_food)
+
+        if list_length < 13:
+            try:
+                with open(f"Profiles/{username}.json", "r") as f:
+                    global_dict = json.load(f)["global_dict"]
+            except FileNotFoundError:
+                raise SystemExit
+
+            global_dict_copy = global_dict.copy()
+            first_food = random.choice(list(global_dict_copy.keys()))
+
+            for _ in range(13 - list_length):
+                second_food_options = [
+                    food for food in global_dict_copy.keys() if food != first_food]
+
+                if not second_food_options:
+                    break  # No more food options available
+
+                second_food = random.choice(second_food_options)
+                choice = self.ask_user_preference(first_food, second_food)
+
+                if choice == 2:
+                    first_food, second_food = second_food, first_food
+
+                choice_data.append((first_food, second_food))
+                del global_dict_copy[second_food]
+
+            del global_dict_copy[first_food]
+
         return choice_data
 
     @staticmethod
@@ -141,7 +174,7 @@ if __name__ == '__main__':
         raise SystemExit
 
     while True:
-        choice_data = ActiveSession.gather_food_preferences(Session.foods)
+        choice_data = ActiveSession.gather_food_preferences()
         local_dict = ActiveSession.store_local(choice_data)
         global_dict = ActiveSession.update_global(local_dict, global_dict)
         user_confirmation = ActiveSession.confirmation()
