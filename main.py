@@ -24,7 +24,7 @@ class Session:
     ]
 
     @staticmethod
-    def create_account():
+    def signup():
         username = input("Enter a username: ")
         password = input("Enter a password: ")
         account = {username: password,
@@ -59,20 +59,31 @@ class Session:
         raise SystemExit
 
     @staticmethod
-    def ask_user_preference(first_option, second_option):
+    def preference(first_option, second_option):
         print(f"Do you prefer: {first_option} or {second_option}?")
         return int(input("Enter 1 for the first option or 2 for the second: "))
 
-    def gather_food_preferences(self):
-        choice_data = []
-        first_food = random.choice(self.foods)
-        list_length = len(self.foods) - 1
+    def preference_exceptions(self, username):
+        try:
+            with open(f"Profiles/{username}.json", "r") as f:
+                global_dict = json.load(f)["global_dict"]
+        except FileNotFoundError as e:
+            raise SystemExit(f"Error: {e}. File not found.") from e
+        else:
+            global_dict_copy = list(global_dict.keys())
 
-        for _ in range(min(14, list_length)):
-            second_food = random.choice(
-                [food for food in self.foods if food != first_food]
-            )
-            choice = self.ask_user_preference(first_food, second_food)
+        if not global_dict_copy:
+            raise ValueError("Error: global_dict list is empty.")
+
+        for _ in range(14 - self.list_length):
+            second_food = [
+                food for food in global_dict_copy if food != first_food
+            ]
+
+            if not second_food:
+                break  # No more food options available
+
+            choice = self.preference(first_food, second_food)
 
             if choice == 2:
                 first_food, second_food = second_food, first_food
@@ -80,45 +91,39 @@ class Session:
             choice_data.append((first_food, second_food))
             self.foods.remove(second_food)
 
-        if list_length < 14:
-            try:
-                with open(f"Profiles/{username}.json", "r") as f:
-                    global_dict = json.load(f)["global_dict"]
-            except FileNotFoundError as e:
-                raise SystemExit from e
+    def gather_preferences(self):
+        choice_data = []
+        first_food = random.choice(self.foods)
+        self.list_length = len(self.foods) - 1
 
-            global_dict_copy = list(global_dict.keys())
+        for _ in range(min(14, self.list_length)):
+            second_food = random.choice(
+                [food for food in self.foods if food != first_food]
+            )
+            choice = self.preference(first_food, second_food)
 
-            for _ in range(14 - list_length):
-                second_food = [
-                    food for food in global_dict_copy if food != first_food
-                ]
+            if choice == 2:
+                first_food, second_food = second_food, first_food
 
-                if not second_food:
-                    break  # No more food options available
+            choice_data.append((first_food, second_food))
+            self.foods.remove(second_food)
 
-                choice = self.ask_user_preference(first_food, second_food)
-
-                if choice == 2:
-                    first_food, second_food = second_food, first_food
-
-                choice_data.append((first_food, second_food))
-                self.foods.remove(second_food)
+        if self.list_length < 14:
+            self.preference_exceptions(username)
 
         self.foods.remove(first_food)
         return choice_data
 
     @staticmethod
-    def store_local(choice_data):
+    def store_choices(choice_data):
         local_dict = {}
         for choice_tuple in choice_data:
             food1, food2 = choice_tuple
 
-            if food1 not in local_dict:
-                # Use another with less bias towards new items added to the list.
-                local_dict[food1] = local_dict.get(food2, 0) + 1
-            else:
+            if food1 in local_dict:
                 local_dict[food1] += 1
+            else:
+                local_dict[food1] = (local_dict.get(food2, 2) + 1) // 2
 
             if food2 not in local_dict:
                 Session.foods.append(food2)
@@ -128,30 +133,25 @@ class Session:
     @staticmethod
     def update_global(local_dict, global_dict):
         for food, count in local_dict.items():
-            if food in global_dict:
-                global_dict[food] += count
-            else:
-                global_dict[food] = count
+            global_dict[food] = global_dict.get(food, 0) + count
 
         return dict(sorted(global_dict.items(), key=lambda item: item[1], reverse=True))
 
     @staticmethod
-    def update_global_pct(dict):
-        """ converts values to percentages based on proportion to total """
-        total_picks = sum(dict.values())
-        return {key: dict[key] / total_picks * 100 for key in dict}
+    def val_to_pct(dict):
+        return {key: dict[key] / sum(dict.values()) * 100 for key in dict}
 
     @staticmethod
-    def confirm_repeat():
+    def retry_choice():
         print("Do you want to re-try or continue?")
-        answer = int(input("Enter 1 to Re-Try or 2 to Continue: "))
-        return answer == 2
+        return int(input("Enter 1 to Re-Try or 2 to Continue: ")) == 1
 
     @staticmethod
-    def num_sim(n1, n2):
-        """ calculates a similarity score between 2 numbers """
-        sim = 1 - abs(n1 - n2) / (n1 + n2)
-        return f"The similarity of {n1} to {n2} is {round(sim * 100, 2)}% ({int(sim * (n1+n2))}/{n1+n2})."
+    def calculate_similarity(n1, n2):
+        score = 1 - abs(n1 - n2) / (n1 + n2)
+        return f"The similarity of {n1} to {n2} is {round(score * 100, 2)}% ({int(score * (n1+n2))}/{n1 + n2})."
+
+    # Before updating gather_preferences and preference_exceptions, create a new function to suggest items based on user's previous choices.
 
 
 if __name__ == '__main__':
@@ -161,7 +161,7 @@ if __name__ == '__main__':
         choice = input(
             "Enter '1' to create a new account or '2' to login to an existing one: ")
         if choice == '1':
-            username = ActiveSession.create_account()  # Add confirmation
+            username = ActiveSession.signup()  # Add Confirmation
             break
         elif choice == '2':
             username = ActiveSession.login()
@@ -176,24 +176,28 @@ if __name__ == '__main__':
         raise SystemExit from e
 
     while True:
-        choice_data = ActiveSession.gather_food_preferences()
-        local_dict = ActiveSession.store_local(choice_data)
+        choice_data = ActiveSession.gather_preferences()
+        local_dict = ActiveSession.store_choices(choice_data)
         global_dict = ActiveSession.update_global(local_dict, global_dict)
+        global_pct_dict = ActiveSession.val_to_pct(global_dict)
 
-        global_pct_dict = ActiveSession.update_global_pct(global_dict)
+        print(ActiveSession.foods)
+        # Add functionality to reset dictionaries.
 
-        user_confirmation = ActiveSession.confirm_repeat()
+        retry = ActiveSession.retry_choice()
+        # Add functionality to update values in JSON file, reset food list, and improve suggestions on rerun.
 
-        if user_confirmation:
-            break
+        with open(f"Profiles/{username}.json", "r+") as f:
+            account = json.load(f)
+            account["global_dict"] = global_dict
+            account["global_pct_dict"] = global_pct_dict
+            f.seek(0)
+            json.dump(account, f, indent=4, separators=(',', ': '))
+            f.truncate()
 
-    with open(f"Profiles/{username}.json", "r+") as f:
-        account = json.load(f)
-        account["global_dict"] = global_dict
-        account["global_pct_dict"] = global_pct_dict
-        f.seek(0)
-        json.dump(account, f, indent=4, separators=(',', ': '))
-        f.truncate()
+        if retry:
+            continue
+        break
 
     print(global_dict)
     print()
