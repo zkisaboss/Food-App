@@ -2,7 +2,6 @@ import json
 import random
 
 
-####### CLEAN #######
 class AccountManager:
     @staticmethod
     def signup():
@@ -50,10 +49,9 @@ class AccountManager:
                 print("Invalid choice. Please enter '1' or '2'.")
 
 
-####### CLEAN #######
-class DataCollector:
+class PreferenceCollector:
     def __init__(self):
-        self.foods = [
+        self.options_list = [
             "pizza",
             "chicken",
             "rice",
@@ -73,64 +71,64 @@ class DataCollector:
             "calamari",
         ]
 
-    def preference(self, first_option, second_option):
-        print(f"Do you prefer: {first_option} or {second_option}?")
+    def preference(self, option1, option2):
+        print(f"Do you prefer: {option1} or {option2}?")
         return int(input("Enter 1 for the first option or 2 for the second: "))
 
     def gather_preferences(self):
-        choice_data = []
-        first_food = random.choice(self.foods)
+        pref_hist = []
+        option1 = random.choice(self.options_list)
 
-        for _ in range(min(4, len(self.foods) - 1)):
-            second_food = random.choice(
-                [food for food in self.foods if food != first_food]
+        for _ in range(min(14, len(self.options_list) - 1)):
+            option2 = random.choice(
+                [option for option in self.options_list if option != option1]
             )
-            choice = self.preference(first_food, second_food)
+            choice = self.preference(option1, option2)
 
             if choice == 2:
-                first_food, second_food = second_food, first_food
+                option1, option2 = option2, option1
 
-            choice_data.append((first_food, second_food))
-            self.foods.remove(second_food)
+            pref_hist.append((option1, option2))
+            self.options_list.remove(option2)
 
-        self.foods.remove(first_food)
-        return choice_data
+        self.options_list.remove(option1)
+        return pref_hist
 
 
-####### MESSY #######
 class DataManager:
-    def __init__(self, choice_data):
-        self.choice_data = choice_data
-        self.food_dict = {}
-        self.food_storage = []
+    def __init__(self, pref_hist):
+        self.pref_hist = pref_hist
+        self.pref_dict = {}
+        self.non_pref_list = []
 
-    def store_choices(self):
-        for choice_tuple in self.choice_data:
-            food1, food2 = choice_tuple
+    def convert_choice_data(self):
+        for choice_tuple in self.pref_hist:
+            preferred, non_preferred = choice_tuple
 
-            if food1 not in self.food_dict:
-                self.food_dict[food1] = self.food_dict.get(food2, 0) + 1
+            if preferred not in self.pref_dict:
+                self.pref_dict[preferred] = self.pref_dict.get(
+                    non_preferred, 0) + 1
             else:
-                self.food_dict[food1] += 1
+                self.pref_dict[preferred] += 1
 
-            if food2 not in self.food_dict:
-                self.food_storage.append(food2)
+            if non_preferred not in self.pref_dict:
+                self.non_pref_list.append(non_preferred)
 
-        return list(self.food_dict.items())
-
-    @staticmethod
-    def update_profile_dict(organized_foods, profile_dict):
-        for food, count in organized_foods:
-            global_dict[food] = global_dict.get(food, 0) + count
-
-        return dict(sorted(profile_dict.items(), key=lambda item: item[1], reverse=True))
+        return list(self.pref_dict.items())
 
     @staticmethod
-    def val_to_pct(global_dict):
-        return {key: global_dict[key] / sum(global_dict.values()) * 100 for key in global_dict}
+    def combine_dictionaries(d1, d2):
+        for food, count in d1:
+            d2[food] = d2.get(food, 0) + count
+
+        return dict(sorted(d2.items(), key=lambda item: item[1], reverse=True))
 
     @staticmethod
-    def save_profile(profile, global_dict, global_pct_dict, profile_file):
+    def convert_values_to_percentage(dict):
+        return {key: dict[key] / sum(dict.values()) * 100 for key in dict}
+
+    @staticmethod
+    def save_profile_data(profile, global_dict, global_pct_dict, profile_file):
         profile["global_dict"] = global_dict
         profile["global_pct_dict"] = global_pct_dict
 
@@ -138,10 +136,9 @@ class DataManager:
             json.dump(profile, f, indent=4, separators=(',', ': '))
 
 
-####### MESSY #######
 class Other:
     @staticmethod
-    def proceed_choice():
+    def choose_to_proceed():
         print("Do you want to re-try or proceed?")
         return int(input("Enter 1 to Re-Try or 2 to Proceed: ")) == 1
 
@@ -151,7 +148,6 @@ class Other:
         return f"The similarity of {n1} to {n2} is {round(score * 100, 2)}% ({int(score * (n1 + n2))}/{n1 + n2})."
 
 
-####### MESSY #######
 if __name__ == '__main__':
     account_manager = AccountManager()
     username = account_manager.manage_account()
@@ -161,25 +157,25 @@ if __name__ == '__main__':
         profile = json.load(f)
 
     global_dict = profile["global_dict"]
-    print(f"Global Dict: {global_dict}")
 
-    data_collector = DataCollector()
-    choice_data = data_collector.gather_preferences()
-    print(f"Choice Data: {choice_data}")
+    pref_collector = PreferenceCollector()
+    pref_hist = pref_collector.gather_preferences()
 
-    data_manager = DataManager(choice_data)
-    local_dict = data_manager.store_choices()
-    global_dict = data_manager.update_profile_dict(local_dict, global_dict)
-    global_pct_dict = data_manager.val_to_pct(global_dict)
-    data_manager.save_profile(profile, global_dict,
-                              global_pct_dict, profile_file)
+    data_manager = DataManager(pref_hist)
+    local_dict = data_manager.convert_choice_data()
+    global_dict = data_manager.combine_dictionaries(local_dict, global_dict)
+    global_pct_dict = data_manager.convert_values_to_percentage(global_dict)
+    data_manager.save_profile_data(profile, global_dict,
+                                   global_pct_dict, profile_file)
 
     others = Other()
-    while proceed := others.proceed_choice():
-        choice_data = data_collector.gather_preferences()
-        local_dict = data_manager.store_choices()
-        global_dict = data_manager.update_profile_dict(local_dict, global_dict)
-        global_pct_dict = data_manager.val_to_pct(global_dict)
+    while proceed := others.choose_to_proceed():
+        pref_hist = pref_collector.gather_preferences()
+        local_dict = data_manager.convert_choice_data()
+        global_dict = data_manager.combine_dictionaries(
+            local_dict, global_dict)
+        global_pct_dict = data_manager.convert_values_to_percentage(
+            global_dict)
 
-        data_manager.save_profile(
+        data_manager.save_profile_data(
             profile, global_dict, global_pct_dict, profile_file)
