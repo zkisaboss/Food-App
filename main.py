@@ -50,7 +50,7 @@ class AccountManager:
                 print("Invalid choice. Please enter '1' or '2'.")
 
 
-### MISSING LOGIC ###
+####### CLEAN #######
 class DataCollector:
     def __init__(self):
         self.foods = [
@@ -81,7 +81,7 @@ class DataCollector:
         choice_data = []
         first_food = random.choice(self.foods)
 
-        for _ in range(min(14, len(self.foods) - 1)):
+        for _ in range(min(4, len(self.foods) - 1)):
             second_food = random.choice(
                 [food for food in self.foods if food != first_food]
             )
@@ -99,104 +99,103 @@ class DataCollector:
 
 ####### MESSY #######
 class DataManager:
-
     def __init__(self, choice_data):
         self.choice_data = choice_data
-
+        self.food_dict = {}
+        self.food_storage = []
 
     def store_choices(self):
-        local_dict = {}
-        self.foods = DataCollector().foods
         for choice_tuple in self.choice_data:
             food1, food2 = choice_tuple
 
-            if food1 in local_dict:
-                local_dict[food1] += 1
+            if food1 not in self.food_dict:
+                self.food_dict[food1] = self.food_dict.get(food2, 0) + 1
             else:
-                local_dict[food1] = (local_dict.get(food2, 2) + 1) // 2
+                self.food_dict[food1] += 1
 
-            if food2 not in local_dict:
-                data_collector.foods.append(food2)
+            if food2 not in self.food_dict:
+                self.food_storage.append(food2)
 
-        return list(local_dict.items())
+        return list(self.food_dict.items())
 
     @staticmethod
-    def update_global_from_local(local_dict, global_dict):
-        for food, count in local_dict:
-
-            # global_dict[food] = global_dict.get(food, 0) + count
-            if food in global_dict:
-                global_dict[food] += count
+    def update_profile_dict(organized_foods, profile_dict):
+        for food, count in organized_foods:
+            if food in profile_dict:
+                profile_dict[food] += count
             else:
-                global_dict[food] = count
+                profile_dict[food] = count
 
-        return global_dict
-
-
-    def gather_and_update_choices(self, global_dict):
-        local_dict = DataManager.store_choices(self)
-        DataManager.update_global_from_local(local_dict, global_dict)
-        return dict(sorted(global_dict.items(), key=lambda item: item[1], reverse=True))
+        return dict(sorted(profile_dict.items(), key=lambda item: item[1], reverse=True))
 
     @staticmethod
-    def val_to_pct(dictionary):
-        return {key: dictionary[key] / sum(dictionary.values()) * 100 for key in dictionary}
+    def val_to_pct(global_dict):
+        return {key: global_dict[key] / sum(global_dict.values()) * 100 for key in global_dict}
+
+    @staticmethod
+    def save_profile(profile, global_dict, global_pct_dict, profile_file):
+        profile["global_dict"] = global_dict
+        profile["global_pct_dict"] = global_pct_dict
+
+        with open(profile_file, "w") as f:
+            json.dump(profile, f, indent=4, separators=(',', ': '))
 
 
 ####### OTHER #######
-class Others:
+class Other:
     @staticmethod
-    def retry_choice():
-        print("Do you want to re-try or continue?")
-        return int(input("Enter 1 to Re-Try or 2 to Continue: ")) == 1
+    def proceed_choice():
+        print("Do you want to re-try or proceed?")
+        return int(input("Enter 1 to Re-Try or 2 to Proceed: ")) == 1
 
-    ####################### GOOD ##########################
     @staticmethod
     def calculate_similarity(n1, n2):
         score = 1 - abs(n1 - n2) / (n1 + n2)
         return f"The similarity of {n1} to {n2} is {round(score * 100, 2)}% ({int(score * (n1+n2))}/{n1 + n2})."
-    #######################################################
-    # Create a new function to suggest items based on user's previous choices before updating gather_preferences and preference_exceptions.
 
 
 if __name__ == '__main__':
+    # Initialize account manager and get the username
     account_manager = AccountManager()
     username = account_manager.manage_account()
 
-    with open(f"Profiles/{username}.json", "r") as f:
-        global_dict = json.load(f)["global_dict"]
+    # Load the profile for the user
+    profile_file = f"Profiles/{username}.json"
+    with open(profile_file, "r") as f:
+        profile = json.load(f)
 
+    # Get the global dictionary from the profile and print it
+    global_dict = profile["global_dict"]
+    print(f"Global Dict: {global_dict}")
+
+    # Collect choice data and print it
     data_collector = DataCollector()
     choice_data = data_collector.gather_preferences()
+    print(f"Choice Data: {choice_data}")
 
+    # Store the choice data in local dictionary and update the global dictionaries
     data_manager = DataManager(choice_data)
+    local_dict = data_manager.store_choices()
+    global_dict = data_manager.update_profile_dict(local_dict, global_dict)
+    global_pct_dict = data_manager.val_to_pct(global_dict)
+    data_manager.save_profile(profile, global_dict,
+                              global_pct_dict, profile_file)
 
-    others = Others()
-
-    while True:
-        global_dict = data_manager.gather_and_update_choices(
-            choice_data)
-
+    # Ask user if they want to continue gathering choice data
+    others = Other()
+    while proceed := others.proceed_choice():
+        # Gather choice data and update dictionaries
+        choice_data = data_collector.gather_preferences()
+        local_dict = data_manager.store_choices()
+        global_dict = data_manager.update_profile_dict(local_dict, global_dict)
         global_pct_dict = data_manager.val_to_pct(global_dict)
 
-        print(data_collector.foods)
-        # Either implement a reset function for dictionaries or  improve the current logic (the latter being more challenging but superior).
+        # Update user's profile with new dictionaries
+        data_manager.save_profile(
+            profile, global_dict, global_pct_dict, profile_file)
 
-        with open(f"Profiles/{username}.json", "r+") as f:
-            account = json.load(f)
-            account["global_dict"] = global_dict
-            account["global_pct_dict"] = global_pct_dict
-            f.seek(0)
-            json.dump(account, f, indent=4, separators=(',', ': '))
-            f.truncate()
-
-        retry = others.retry_choice()
-        # Add functionality to update values in JSON file, reset food list, and improve suggestions on re-run.
-
-        if retry:
-            continue
-        break
-
+    # Print the final dictionaries
+    print()
     print(global_dict)
     print()
     print(global_pct_dict)
