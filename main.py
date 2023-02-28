@@ -141,7 +141,7 @@ class DataManager:
             json.dump(profile, f, indent=4, separators=(',', ': '))
 
 
-####### OTHER #######
+####### MESSY #######
 class Other:
     @staticmethod
     def proceed_choice():
@@ -151,29 +151,25 @@ class Other:
     @staticmethod
     def calculate_similarity(n1, n2):
         score = 1 - abs(n1 - n2) / (n1 + n2)
-        return f"The similarity of {n1} to {n2} is {round(score * 100, 2)}% ({int(score * (n1+n2))}/{n1 + n2})."
+        return f"The similarity of {n1} to {n2} is {round(score * 100, 2)}% ({int(score * (n1 + n2))}/{n1 + n2})."
 
 
+####### MESSY #######
 if __name__ == '__main__':
-    # Initialize account manager and get the username
     account_manager = AccountManager()
     username = account_manager.manage_account()
 
-    # Load the profile for the user
     profile_file = f"Profiles/{username}.json"
     with open(profile_file, "r") as f:
         profile = json.load(f)
 
-    # Get the global dictionary from the profile and print it
     global_dict = profile["global_dict"]
     print(f"Global Dict: {global_dict}")
 
-    # Collect choice data and print it
     data_collector = DataCollector()
     choice_data = data_collector.gather_preferences()
     print(f"Choice Data: {choice_data}")
 
-    # Store the choice data in local dictionary and update the global dictionaries
     data_manager = DataManager(choice_data)
     local_dict = data_manager.store_choices()
     global_dict = data_manager.update_profile_dict(local_dict, global_dict)
@@ -181,21 +177,12 @@ if __name__ == '__main__':
     data_manager.save_profile(profile, global_dict,
                               global_pct_dict, profile_file)
 
-    # Ask user if they want to continue gathering choice data
     others = Other()
     while proceed := others.proceed_choice():
-        # Gather choice data and update dictionaries
         choice_data = data_collector.gather_preferences()
         local_dict = data_manager.store_choices()
         global_dict = data_manager.update_profile_dict(local_dict, global_dict)
         global_pct_dict = data_manager.val_to_pct(global_dict)
 
-        # Update user's profile with new dictionaries
         data_manager.save_profile(
             profile, global_dict, global_pct_dict, profile_file)
-
-    # Print the final dictionaries
-    print()
-    print(global_dict)
-    print()
-    print(global_pct_dict)
