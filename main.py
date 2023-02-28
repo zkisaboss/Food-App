@@ -121,10 +121,7 @@ class DataManager:
     @staticmethod
     def update_profile_dict(organized_foods, profile_dict):
         for food, count in organized_foods:
-            if food in profile_dict:
-                profile_dict[food] += count
-            else:
-                profile_dict[food] = count
+            global_dict[food] = global_dict.get(food, 0) + count
 
         return dict(sorted(profile_dict.items(), key=lambda item: item[1], reverse=True))
 
