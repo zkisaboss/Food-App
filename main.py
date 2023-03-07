@@ -1,8 +1,3 @@
-"""
-todo:
-- Add features.
-"""
-
 import json
 import random
 
@@ -152,12 +147,12 @@ class DataManager:
     """
 
     def __init__(self, local, clicks, impressions):
-        self.global_dict = self.combine_dicts(local, profile["global"])
-        self.clicks = self.combine_dicts(clicks, profile["clicks"])
+        self.global_dict = self.combine_dicts(local, account["global"])
+        self.clicks = self.combine_dicts(clicks, account["clicks"])
         self.impressions = self.combine_dicts(
-            impressions, profile["impressions"])
+            impressions, account["impressions"])
 
-        self.save_profile_data(profile)
+        self.save_data(account)
 
     def combine_dicts(self, d1, d2):
         for key, value in d1.items():
@@ -180,17 +175,17 @@ class DataManager:
         }
         return dict(sorted(cpi.items(), key=lambda item: item[1], reverse=True))
 
-    def save_profile_data(self, profile):
-        profile["global"] = self.global_dict
-        profile["global_pct"] = self.number_to_percent(profile["global"])
+    def save_data(self, account):
+        account["global"] = self.global_dict
+        account["global_pct"] = self.number_to_percent(account["global"])
 
-        profile["clicks"] = self.clicks
-        profile["impressions"] = self.impressions
-        profile["cpi"] = self.get_cpi(
-            profile["clicks"], profile["impressions"])
+        account["clicks"] = self.clicks
+        account["impressions"] = self.impressions
+        account["cpi"] = self.get_cpi(
+            account["clicks"], account["impressions"])
 
-        with open(profile_file, "w") as f:
-            json.dump(profile, f, indent=4, separators=(',', ': '))
+        with open(account_file, "w") as f:
+            json.dump(account, f, indent=4, separators=(',', ': '))
 
 
 class ToolBox:
@@ -210,12 +205,55 @@ class ToolBox:
         return f"The similarity of {n1} and {n2} is {round(score * 100, 2)}% ({int(score * (n1 + n2))}/{n1 + n2})."
 
 
+"""
+Additional Resources:
+https://miro.medium.com/v2/resize:fit:1400/format:webp/1*ReuY4yOoqKMatHNJupcM5A@2x.png
+https://miro.medium.com/v2/resize:fit:1400/format:webp/1*J7bZ-K-6RwmwlYUqoXFOOQ@2x.png
+
+It is necessary to be extremely careful to avoid a “rich-get-richer” effect for popular items
+and to avoid getting users stuck into what could be called an “information confinement area”.
+One solution is a hybrid-based approach: a conjunction between user-user item-item collaborative
+filtering.
+User-User: More Personalized, Less Robust. <-- Best
+Item-Item: More Robust, Less Personalized.
+
+todo (user-user):
+1. Identify users with the most similar “interactions profile”. (nearest neighbors) to...
+2. Suggest items that are the most popular among these neighbors (and that are “new” to our user).
+"""
+
+
+class UserBasedCollaborativeFiltering:
+    def get_nearest_neighbors(self):
+        """
+        Find users with the most similar interactions profile.
+            - KNN (K-Nearest Neighbors): more accurate
+            - ANN (Approximate Nearest Neighbor): more scalable
+        """
+        pass
+
+    def calculate_similarity(self):
+        """
+        Calculate similarity between users based on interactions.
+        Return profile list sorted by similarity.
+        """
+        pass
+
+
+    def get_recommendations_for_user(self):
+        """
+        Suggest popular items that are new to our user by iterating through sorted profile list.
+        """
+        pass
+
+
+
 if __name__ == '__main__':
     USER = AccountManager().interaction()
 
-    profile_file = f"Profiles/{USER}.json"
-    with open(profile_file, "r") as f:
-        profile = json.load(f)
+    account_file = f"Profiles/{USER}.json"
+    with open(account_file, "r") as f:
+        account = json.load(f)
 
     pref_hist = TupleCollector().pref_hist
     local, clicks, impressions = DataExtractor(
