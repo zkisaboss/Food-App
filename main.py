@@ -19,7 +19,7 @@ class AccountManager:
         USER = input("Enter a username: ")
         PASS = input("Enter a password: ")
         account = {USER: PASS,
-                   "global": {}, "global_pct": {}, "clicks": {}, "impressions": {}, "ctp": {}}
+                   "global": {}, "global_pct": {}, "clicks": {}, "impressions": {}, "cpi": {}}
 
         with open(f"Profiles/{USER}.json", "w") as f:
             json.dump(account, f, indent=4, separators=(',', ': '))
@@ -171,14 +171,14 @@ class DataManager:
             for key in d
         }
 
-    def get_ctp(self, d1, d2):
-        ctp = {
+    def get_cpi(self, d1, d2):
+        cpi = {
             key: (d1[key] / d2[key]) * 100
             if d1.get(key) and d2.get(key)
             else 0.0
             for key in d2
         }
-        return dict(sorted(ctp.items(), key=lambda item: item[1], reverse=True))
+        return dict(sorted(cpi.items(), key=lambda item: item[1], reverse=True))
 
     def save_profile_data(self, profile):
         profile["global"] = self.global_dict
@@ -186,7 +186,7 @@ class DataManager:
 
         profile["clicks"] = self.clicks
         profile["impressions"] = self.impressions
-        profile["ctp"] = self.get_ctp(
+        profile["cpi"] = self.get_cpi(
             profile["clicks"], profile["impressions"])
 
         with open(profile_file, "w") as f:
