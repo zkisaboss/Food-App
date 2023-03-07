@@ -1,7 +1,5 @@
 """
 todo:
-- Remove unnecessary code and test for bugs.
-- Fix bugs.
 - Add features.
 """
 
@@ -138,8 +136,10 @@ class DataExtractor:
                 local[key1] += 1
 
             clicks[key1] = clicks.get(key1, 0) + 1
-            impressions |= {key: impressions.get(
-                key, 0) + 1 for key in [key1, key2]}
+            impressions |= {
+                key: impressions.get(key, 0) + 1
+                for key in [key1, key2]
+            }
 
         return local, clicks, impressions
 
@@ -166,14 +166,17 @@ class DataManager:
         return dict(sorted(d2.items(), key=lambda item: item[1], reverse=True))
 
     def number_to_percent(self, d):
-        return {key: d[key] / sum(d.values()) * 100 for key in d}
+        return {
+            key: d[key] / sum(d.values()) * 100
+            for key in d
+        }
 
     def get_ctp(self, d1, d2):
         ctp = {
-            key: 0
-            if d2.get(key, 0) == 0
-            else d1.get(key, 0) / d2.get(key, 0) * 100
-            for key in d1
+            key: (d1[key] / d2[key]) * 100
+            if d1.get(key) and d2.get(key)
+            else 0.0
+            for key in d2
         }
         return dict(sorted(ctp.items(), key=lambda item: item[1], reverse=True))
 
