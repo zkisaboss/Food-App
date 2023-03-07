@@ -1,33 +1,45 @@
+"""
+todo:
+- Remove unnecessary code and test for bugs.
+- Fix bugs.
+- Add features.
+"""
+
 import json
 import random
 
 
+# Collects USER & PASS, Returns Username
 class AccountManager:
-    @staticmethod
-    def signup():
-        username = input("Enter a username: ")
-        password = input("Enter a password: ")
-        account = {username: password,
-                   "global_dict": {}, "global_pct_dict": {}}
+    """
+    Functions in this class take username and password strings as input and return the respective username string.
+    """
 
-        with open(f"Profiles/{username}.json", "w") as f:
+    @staticmethod
+    def signup():  # Add a check to see if the username is already taken
+        USER = input("Enter a username: ")
+        PASS = input("Enter a password: ")
+        account = {USER: PASS,
+                   "global": {}, "global_pct": {}, "clicks": {}, "impressions": {}, "ctp": {}}
+
+        with open(f"Profiles/{USER}.json", "w") as f:
             json.dump(account, f, indent=4, separators=(',', ': '))
 
         print("Account created successfully!")
-        return username
+        return USER
 
     @staticmethod
     def login():
         for _ in range(3):
-            username = input("Enter your username: ")
-            password = input("Enter your password: ")
+            USER = input("Enter your username: ")
+            PASS = input("Enter your password: ")
 
             try:
-                with open(f"Profiles/{username}.json", "r") as f:
+                with open(f"Profiles/{USER}.json", "r") as f:
                     account = json.load(f)
 
-                if account[username] == password:
-                    return username
+                if account[USER] == PASS:
+                    return USER
             except (FileNotFoundError, KeyError):
                 print("Could not load profile.")
 
@@ -36,7 +48,7 @@ class AccountManager:
         print("You've exceeded the number of login attempts.")
         raise SystemExit
 
-    def manage_account(self):
+    def interaction(self):
         while True:
             choice = input(
                 "Enter '1' to create a new account or '2' to login to an existing one: ")
@@ -49,7 +61,12 @@ class AccountManager:
                 print("Invalid choice. Please enter '1' or '2'.")
 
 
-class PreferenceCollector:
+# Collects User Input
+class TupleCollector:
+    """
+    Functions in this class take integers (1, 2) as input and returns a list containing tuples (pref_hist).
+    """
+
     def __init__(self):
         self.options_list = [
             "pizza",
@@ -70,6 +87,7 @@ class PreferenceCollector:
             "grilled salmon",
             "calamari",
         ]
+        self.pref_hist = self.gather_preferences()
 
     def preference(self, option1, option2):
         print(f"Do you prefer: {option1} or {option2}?")
@@ -77,105 +95,130 @@ class PreferenceCollector:
 
     def gather_preferences(self):
         pref_hist = []
-        option1 = random.choice(self.options_list)
+        opt1 = random.choice(self.options_list)
 
-        for _ in range(min(14, len(self.options_list) - 1)):
-            option2 = random.choice(
-                [option for option in self.options_list if option != option1]
+        for _ in range(min(4, len(self.options_list) - 1)):
+            opt2 = random.choice(
+                [option for option in self.options_list if option != opt1]
             )
-            choice = self.preference(option1, option2)
+            choice = self.preference(opt1, opt2)
 
             if choice == 2:
-                option1, option2 = option2, option1
+                opt1, opt2 = opt2, opt1
 
-            pref_hist.append((option1, option2))
-            self.options_list.remove(option2)
+            pref_hist.append((opt1, opt2))
+            self.options_list.remove(opt2)
 
-        self.options_list.remove(option1)
+        self.options_list.remove(opt1)
         return pref_hist
 
 
-class DataManager:
+# Extracts Data from User Input
+class DataExtractor:
+    """
+    Functions in this class take pref_hist as input and return dictionaries (local, clicks, impressions).
+    """
+
     def __init__(self, pref_hist):
         self.pref_hist = pref_hist
-        self.pref_dict = {}
-        self.non_pref_list = []
 
-    def convert_choice_data(self):
-        for choice_tuple in self.pref_hist:
-            preferred, non_preferred = choice_tuple
+    def extract_data(self):
+        local = {}
+        clicks = {}
+        impressions = {}
+        for tuple in self.pref_hist:
+            key1, key2 = tuple
 
-            if preferred not in self.pref_dict:
-                self.pref_dict[preferred] = self.pref_dict.get(
-                    non_preferred, 0) + 1
+            if key1 not in local:
+                local[key1] = local.get(key2, 0) + 1
             else:
-                self.pref_dict[preferred] += 1
+                local[key1] += 1
 
-            if non_preferred not in self.pref_dict:
-                self.non_pref_list.append(non_preferred)
+            clicks[key1] = clicks.get(key1, 0) + 1
+            impressions |= {key: impressions.get(
+                key, 0) + 1 for key in [key1, key2]}
 
-        return list(self.pref_dict.items())
+        return local, clicks, impressions
 
-    @staticmethod
-    def combine_dictionaries(d1, d2):
-        for food, count in d1:
-            d2[food] = d2.get(food, 0) + count
+
+# Updates JSON File
+class DataManager:
+    """
+    Functions in this class takes dictionaries and write to the user's updated json file.
+    """
+
+    def __init__(self, local, clicks, impressions):
+        self.global_dict = self.combine_dicts(local, profile["global"])
+        self.clicks = self.combine_dicts(clicks, profile["clicks"])
+        self.impressions = self.combine_dicts(
+            impressions, profile["impressions"])
+
+        self.save_profile_data(profile)
+
+    def combine_dicts(self, d1, d2):
+        for key, value in d1.items():
+            d2[key] = d2.get(key, 0) + value
 
         return dict(sorted(d2.items(), key=lambda item: item[1], reverse=True))
 
-    @staticmethod
-    def convert_values_to_percentage(dict):
-        return {key: dict[key] / sum(dict.values()) * 100 for key in dict}
+    def number_to_percent(self, d):
+        return {key: d[key] / sum(d.values()) * 100 for key in d}
 
-    @staticmethod
-    def save_profile_data(profile, global_dict, global_pct_dict, profile_file):
-        profile["global_dict"] = global_dict
-        profile["global_pct_dict"] = global_pct_dict
+    def get_ctp(self, d1, d2):
+        ctp = {
+            key: 0
+            if d2.get(key, 0) == 0
+            else d1.get(key, 0) / d2.get(key, 0) * 100
+            for key in d1
+        }
+        return dict(sorted(ctp.items(), key=lambda item: item[1], reverse=True))
+
+    def save_profile_data(self, profile):
+        profile["global"] = self.global_dict
+        profile["global_pct"] = self.number_to_percent(profile["global"])
+
+        profile["clicks"] = self.clicks
+        profile["impressions"] = self.impressions
+        profile["ctp"] = self.get_ctp(
+            profile["clicks"], profile["impressions"])
 
         with open(profile_file, "w") as f:
             json.dump(profile, f, indent=4, separators=(',', ': '))
 
 
-class Other:
+class ToolBox:
+    """
+    The functions in this class provide useful functionality that can be used throughout the program.
+    """
+
     @staticmethod
-    def choose_to_proceed():
-        print("Do you want to re-try or proceed?")
-        return int(input("Enter 1 to Re-Try or 2 to Proceed: ")) == 1
+    def proceed_or_retry():
+        print("Do you want to proceed or retry?")
+        return int(input("Enter 1 to Proceed or 2 to Retry: ")) == 2
 
     @staticmethod
     def calculate_similarity(n1, n2):
         score = 1 - abs(n1 - n2) / (n1 + n2)
-        return f"The similarity of {n1} to {n2} is {round(score * 100, 2)}% ({int(score * (n1 + n2))}/{n1 + n2})."
+        return f"The similarity of {n1} and {n2} is {round(score * 100, 2)}% ({int(score * (n1 + n2))}/{n1 + n2})."
 
 
 if __name__ == '__main__':
     account_manager = AccountManager()
-    username = account_manager.manage_account()
+    username = account_manager.interaction()
 
     profile_file = f"Profiles/{username}.json"
     with open(profile_file, "r") as f:
         profile = json.load(f)
 
-    global_dict = profile["global_dict"]
+    pref_hist = TupleCollector().pref_hist
 
-    pref_collector = PreferenceCollector()
-    pref_hist = pref_collector.gather_preferences()
+    local, clicks, impressions = DataExtractor(
+        pref_hist).extract_data()
 
-    data_manager = DataManager(pref_hist)
-    local_dict = data_manager.convert_choice_data()
-    global_dict = data_manager.combine_dictionaries(local_dict, global_dict)
-    global_pct_dict = data_manager.convert_values_to_percentage(global_dict)
-    data_manager.save_profile_data(profile, global_dict,
-                                   global_pct_dict, profile_file)
+    DataManager(local, clicks, impressions)
 
-    others = Other()
-    while proceed := others.choose_to_proceed():
-        pref_hist = pref_collector.gather_preferences()
-        local_dict = data_manager.convert_choice_data()
-        global_dict = data_manager.combine_dictionaries(
-            local_dict, global_dict)
-        global_pct_dict = data_manager.convert_values_to_percentage(
-            global_dict)
-
-        data_manager.save_profile_data(
-            profile, global_dict, global_pct_dict, profile_file)
+    while retry := ToolBox().proceed_or_retry():
+        pref_hist = TupleCollector().pref_hist
+        local, clicks, impressions = DataExtractor(
+            pref_hist).extract_data()
+        DataManager(local, clicks, impressions)

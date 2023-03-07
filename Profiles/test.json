@@ -1,17 +1,55 @@
 {
     "test": "123",
-    "global_dict": {
+    "global": {
+        "barbecue ribs": 7,
+        "dumplings": 6,
         "calamari": 4,
-        "tacos": 4,
+        "waffles": 4,
         "hamburger": 3,
-        "sushi": 3,
-        "grilled salmon": 1
+        "soup": 2,
+        "tandoori chicken": 2,
+        "rice": 1
     },
-    "global_pct_dict": {
-        "calamari": 26.666666666666668,
-        "tacos": 26.666666666666668,
-        "hamburger": 20.0,
-        "sushi": 20.0,
-        "grilled salmon": 6.666666666666667
+    "global_pct": {
+        "barbecue ribs": 24.137931034482758,
+        "dumplings": 20.689655172413794,
+        "calamari": 13.793103448275861,
+        "waffles": 13.793103448275861,
+        "hamburger": 10.344827586206897,
+        "soup": 6.896551724137931,
+        "tandoori chicken": 6.896551724137931,
+        "rice": 3.4482758620689653
+    },
+    "clicks": {
+        "dumplings": 3,
+        "barbecue ribs": 2,
+        "waffles": 2,
+        "rice": 1,
+        "soup": 1,
+        "calamari": 1,
+        "tandoori chicken": 1,
+        "hamburger": 1
+    },
+    "impressions": {
+        "waffles": 4,
+        "dumplings": 4,
+        "rice": 3,
+        "barbecue ribs": 3,
+        "soup": 2,
+        "tandoori chicken": 2,
+        "hamburger": 2,
+        "tacos": 2,
+        "pizza": 1,
+        "calamari": 1
+    },
+    "ctp": {
+        "dumplings": 75.0,
+        "barbecue ribs": 66.66666666666666,
+        "waffles": 50.0,
+        "rice": 33.33333333333333,
+        "soup": 50.0,
+        "calamari": 100.0,
+        "tandoori chicken": 50.0,
+        "hamburger": 50.0
     }
 }
