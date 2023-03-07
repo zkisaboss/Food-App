@@ -216,7 +216,6 @@ if __name__ == '__main__':
         profile = json.load(f)
 
     pref_hist = TupleCollector().pref_hist
-
     local, clicks, impressions = DataExtractor(
         pref_hist).extract_data()
 
