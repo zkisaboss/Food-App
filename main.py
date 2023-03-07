@@ -211,9 +211,9 @@ class ToolBox:
 
 
 if __name__ == '__main__':
-    username = AccountManager().interaction()
+    USER = AccountManager().interaction()
 
-    profile_file = f"Profiles/{username}.json"
+    profile_file = f"Profiles/{USER}.json"
     with open(profile_file, "r") as f:
         profile = json.load(f)
 
