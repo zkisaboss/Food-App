@@ -9,10 +9,11 @@ import json
 import random
 
 
-# Collects USER & PASS, Returns Username
 class AccountManager:
     """
-    Functions in this class take username and password strings as input and return the respective username string.
+    Functions in this class:
+    Take username and password strings.
+    Return username string.
     """
 
     @staticmethod
@@ -61,10 +62,11 @@ class AccountManager:
                 print("Invalid choice. Please enter '1' or '2'.")
 
 
-# Collects User Input
 class TupleCollector:
     """
-    Functions in this class take integers (1, 2) as input and returns a list containing tuples (pref_hist).
+    Functions in this class:
+    Take integers (1, 2).
+    Return a list that contains tuples (pref_hist).
     """
 
     def __init__(self):
@@ -113,10 +115,11 @@ class TupleCollector:
         return pref_hist
 
 
-# Extracts Data from User Input
 class DataExtractor:
     """
-    Functions in this class take pref_hist as input and return dictionaries (local, clicks, impressions).
+    Functions in this class:
+    Take list (pref_hist).
+    Return dictionaries (local, clicks, impressions).
     """
 
     def __init__(self, pref_hist):
@@ -141,10 +144,11 @@ class DataExtractor:
         return local, clicks, impressions
 
 
-# Updates JSON File
 class DataManager:
     """
-    Functions in this class takes dictionaries and write to the user's updated json file.
+    Functions in this class:
+    Take dictionaries.
+    Write to the user's JSON file.
     """
 
     def __init__(self, local, clicks, impressions):
@@ -188,7 +192,8 @@ class DataManager:
 
 class ToolBox:
     """
-    The functions in this class provide useful functionality that can be used throughout the program.
+    The functions in this class:
+    Provide useful functionality to be used throughout the program.
     """
 
     @staticmethod
