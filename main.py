@@ -1,5 +1,6 @@
 import json
 import random
+import os
 
 
 class AccountManager:
@@ -82,13 +83,13 @@ class TupleCollector:
             "grilled salmon",
             "calamari",
         ]
-        self.pref_hist = self.gather_preferences()
+        self.collect = self.gather_pref()
 
     def preference(self, option1, option2):
         print(f"Do you prefer: {option1} or {option2}?")
         return int(input("Enter 1 for the first option or 2 for the second: "))
 
-    def gather_preferences(self):
+    def gather_pref(self):
         pref_hist = []
         opt1 = random.choice(self.options_list)
 
@@ -117,6 +118,7 @@ class DataExtractor:
 
     def __init__(self, pref_hist):
         self.pref_hist = pref_hist
+        self.extract = self.extract_data()
 
     def extract_data(self):
         local = {}
@@ -207,6 +209,8 @@ class ToolBox:
 
 """
 Additional Resources:
+https://towardsdatascience.com/introduction-to-recommender-systems-6c66cf15ada
+
 https://miro.medium.com/v2/resize:fit:1400/format:webp/1*ReuY4yOoqKMatHNJupcM5A@2x.png
 https://miro.medium.com/v2/resize:fit:1400/format:webp/1*J7bZ-K-6RwmwlYUqoXFOOQ@2x.png
 
@@ -214,6 +218,7 @@ It is necessary to be extremely careful to avoid a “rich-get-richer” effect 
 and to avoid getting users stuck into what could be called an “information confinement area”.
 One solution is a hybrid-based approach: a conjunction between user-user item-item collaborative
 filtering.
+
 User-User: More Personalized, Less Robust. <-- Best
 Item-Item: More Robust, Less Personalized.
 
@@ -230,7 +235,9 @@ class UserBasedCollaborativeFiltering:
             - KNN (K-Nearest Neighbors): more accurate
             - ANN (Approximate Nearest Neighbor): more scalable
         """
-        pass
+        nearest_neighbors = []
+        print("")
+        return nearest_neighbors
 
     def calculate_similarity(self):
         """
@@ -239,13 +246,14 @@ class UserBasedCollaborativeFiltering:
         """
         pass
 
-
     def get_recommendations_for_user(self):
         """
         Suggest popular items that are new to our user by iterating through sorted profile list.
         """
-        pass
-
+        for user in nearest_neighbors:  # idk how to get all the users in the Profiles folder
+            for item in user["cpi"]:
+                if item not in myprofile["cpi"]:
+                    new_items_list["items"].append(item)
 
 
 if __name__ == '__main__':
@@ -255,14 +263,13 @@ if __name__ == '__main__':
     with open(account_file, "r") as f:
         account = json.load(f)
 
-    pref_hist = TupleCollector().pref_hist
-    local, clicks, impressions = DataExtractor(
-        pref_hist).extract_data()
+    pref_hist = TupleCollector().collect
+    local, clicks, impressions = DataExtractor(pref_hist).extract
 
     DataManager(local, clicks, impressions)
 
     while retry := ToolBox().proceed_or_retry():
-        pref_hist = TupleCollector().pref_hist
-        local, clicks, impressions = DataExtractor(
-            pref_hist).extract_data()
+        pref_hist = TupleCollector().collect
+        local, clicks, impressions = DataExtractor(pref_hist).extract
+
         DataManager(local, clicks, impressions)
