@@ -231,7 +231,7 @@ todo (user-user):
 """
 
 
-class UserBasedCollaborativeFiltering:
+class CollaborativeFiltering:
     def get_nearest_neighbors(self):
         """
         Find users with the most similar interactions profile.
@@ -240,8 +240,12 @@ class UserBasedCollaborativeFiltering:
         """
         directory = 'Profiles/'
 
-        for filename in os.listdir(directory):
-            print(filename)
+        for user_files in os.listdir(directory):
+            with open(os.path.join(directory, user_files), 'r') as f:
+                user = json.load(f)
+            for item in user["cpi"]:
+                if item not in account["cpi"]:
+                    account["items"].append(item)
 
     def calculate_similarity(self):
         """
@@ -254,14 +258,11 @@ class UserBasedCollaborativeFiltering:
         """
         Suggest popular items that are new to our user by iterating through sorted profile list.
         """
-        for user in nearest_neighbors:  # idk how to get all the users in the Profiles folder
-            for item in user["cpi"]:
-                if item not in myprofile["cpi"]:
-                    new_items_list["items"].append(item)
+        pass
 
 
 if __name__ == '__main__':
-    UserBasedCollaborativeFiltering().get_nearest_neighbors()
+    CollaborativeFiltering().get_nearest_neighbors()
 
     USER = AccountManager().manage
 
