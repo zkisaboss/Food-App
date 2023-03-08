@@ -1,13 +1,12 @@
 import json
-import random
 import os
+import random
 
 
 class AccountManager:
     """
-    Functions in this class:
-    Take username and password strings.
-    Return username string.
+    Takes string inputs: username and password.
+    Returns a variable containing the username: USER.
     """
 
     def __init__(self):
@@ -61,9 +60,8 @@ class AccountManager:
 
 class TupleCollector:
     """
-    Functions in this class:
-    Take integers (1, 2).
-    Return a list that contains tuples (pref_hist).
+    Takes integers: '1' and '2'.
+    Returns a list, which contains tuples: pref_hist.
     """
 
     def __init__(self):
@@ -114,9 +112,8 @@ class TupleCollector:
 
 class DataExtractor:
     """
-    Functions in this class:
-    Take list (pref_hist).
-    Return dictionaries (local, clicks, impressions).
+    Takes a list: pref_hist.
+    Returns dictionaries: local, clicks, impressions.
     """
 
     def __init__(self, pref_hist):
@@ -146,9 +143,8 @@ class DataExtractor:
 
 class DataManager:
     """
-    Functions in this class:
-    Take dictionaries.
-    Write to the user's JSON file.
+    Takes dictionaries: local, clicks, impressions.
+    Updates the user's JSON file.
     """
 
     def __init__(self, local, clicks, impressions):
@@ -195,8 +191,7 @@ class DataManager:
 
 class ToolBox:
     """
-    The functions in this class:
-    Provide useful functionality to be used throughout the program.
+    Provides useful functionality to be used throughout the program.
     """
 
     @staticmethod
@@ -218,11 +213,10 @@ https://miro.medium.com/v2/resize:fit:1400/format:webp/1*ReuY4yOoqKMatHNJupcM5A@
 https://miro.medium.com/v2/resize:fit:1400/format:webp/1*J7bZ-K-6RwmwlYUqoXFOOQ@2x.png
 
 It is necessary to be extremely careful to avoid a “rich-get-richer” effect for popular items
-and to avoid getting users stuck into what could be called an “information confinement area”.
-One solution is a hybrid-based approach: a conjunction between user-user item-item collaborative
-filtering.
+and to avoid getting users stuck into an “information confinement area”.
+One solution is a hybrid-based approach, e.g. user-user and item-item collaborative filtering.
 
-User-User: More Personalized, Less Robust. <-- Best
+User-User: More Personalized, Less Robust. <-- BEST
 Item-Item: More Robust, Less Personalized.
 
 todo (user-user):
@@ -232,7 +226,7 @@ todo (user-user):
 
 
 class CollaborativeFiltering:
-    def get_nearest_neighbors(self):
+    def approximate_nearest_neighbors(self):
         """
         Find users with the most similar interactions profile.
             - KNN (K-Nearest Neighbors): more accurate
@@ -262,7 +256,7 @@ class CollaborativeFiltering:
 
 
 if __name__ == '__main__':
-    CollaborativeFiltering().get_nearest_neighbors()
+    CollaborativeFiltering().approximate_nearest_neighbors()
 
     USER = AccountManager().manage
 
