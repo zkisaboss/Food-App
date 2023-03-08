@@ -1,0 +1,35 @@
+{
+    "bob": "123",
+    "global": {
+        "calamari": 1,
+        "hamburger": 1,
+        "tacos": 1,
+        "barbecue ribs": 1
+    },
+    "global_pct": {
+        "calamari": 25.0,
+        "hamburger": 25.0,
+        "tacos": 25.0,
+        "barbecue ribs": 25.0
+    },
+    "clicks": {
+        "calamari": 1,
+        "hamburger": 1,
+        "tacos": 1,
+        "barbecue ribs": 1
+    },
+    "impressions": {
+        "calamari": 2,
+        "hamburger": 2,
+        "tacos": 2,
+        "spaghetti": 1,
+        "barbecue ribs": 1
+    },
+    "cpi": {
+        "barbecue ribs": 100.0,
+        "calamari": 50.0,
+        "hamburger": 50.0,
+        "tacos": 50.0,
+        "spaghetti": 0.0
+    }
+}

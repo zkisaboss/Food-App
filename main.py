@@ -124,8 +124,8 @@ class DataExtractor:
         local = {}
         clicks = {}
         impressions = {}
-        for tuple in self.pref_hist:
-            key1, key2 = tuple
+
+        for key1, key2 in self.pref_hist:
 
             if key1 not in local:
                 local[key1] = local.get(key2, 0) + 1
@@ -133,10 +133,9 @@ class DataExtractor:
                 local[key1] += 1
 
             clicks[key1] = clicks.get(key1, 0) + 1
-            impressions |= {
-                key: impressions.get(key, 0) + 1
-                for key in [key1, key2]
-            }
+
+            for key in [key1, key2]:
+                impressions[key] = impressions.get(key, 0) + 1
 
         return local, clicks, impressions
 
@@ -256,7 +255,7 @@ class CollaborativeFiltering:
 
 
 if __name__ == '__main__':
-    CollaborativeFiltering().approximate_nearest_neighbors()
+    # CollaborativeFiltering().approximate_nearest_neighbors()
 
     USER = AccountManager().manage
 
