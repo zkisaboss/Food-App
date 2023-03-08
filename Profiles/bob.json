@@ -1,35 +1,42 @@
 {
     "bob": "123",
     "global": {
+        "tacos": 5,
         "calamari": 1,
         "hamburger": 1,
-        "tacos": 1,
-        "barbecue ribs": 1
+        "barbecue ribs": 1,
+        "tandoori chicken": 1
     },
     "global_pct": {
-        "calamari": 25.0,
-        "hamburger": 25.0,
-        "tacos": 25.0,
-        "barbecue ribs": 25.0
+        "tacos": 55.55555555555556,
+        "calamari": 11.11111111111111,
+        "hamburger": 11.11111111111111,
+        "barbecue ribs": 11.11111111111111,
+        "tandoori chicken": 11.11111111111111
     },
     "clicks": {
+        "tacos": 4,
         "calamari": 1,
         "hamburger": 1,
-        "tacos": 1,
-        "barbecue ribs": 1
+        "barbecue ribs": 1,
+        "tandoori chicken": 1
     },
     "impressions": {
+        "tacos": 5,
+        "hamburger": 3,
         "calamari": 2,
-        "hamburger": 2,
-        "tacos": 2,
-        "spaghetti": 1,
-        "barbecue ribs": 1
+        "spaghetti": 2,
+        "tandoori chicken": 2,
+        "barbecue ribs": 1,
+        "steak": 1
     },
     "cpi": {
         "barbecue ribs": 100.0,
+        "tacos": 80.0,
         "calamari": 50.0,
-        "hamburger": 50.0,
-        "tacos": 50.0,
-        "spaghetti": 0.0
+        "tandoori chicken": 50.0,
+        "hamburger": 33.33333333333333,
+        "spaghetti": 0.0,
+        "steak": 0.0
     }
 }

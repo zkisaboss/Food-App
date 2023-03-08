@@ -302,36 +302,17 @@ class NearestNeighbor:
 
 
 if __name__ == '__main__':
-    directory = 'Profiles/'
-    query = {
-        "steak": 88.88888888888889,
-        "calamari": 75.0,
-        "dumplings": 71.42857142857143,
-        "waffles": 69.23076923076923,
-        "barbecue ribs": 60.0,
-        "hamburger": 55.55555555555556,
-        "noodles": 50.0,
-        "grilled salmon": 50.0,
-        "pulled pork": 42.857142857142854,
-        "rice": 37.5,
-        "spaghetti": 33.33333333333333,
-        "soup": 33.33333333333333,
-        "chicken": 25.0,
-        "tandoori chicken": 25.0,
-        "tacos": 16.666666666666664,
-        "sushi": 0.0,
-        "pizza": 0.0
-    }
     USER = AccountManager().manage
-
-    nn = NearestNeighbor()
-    result = nn.run(USER, directory)
-    print(result)
-
 
     account_file = f"Profiles/{USER}.json"
     with open(account_file, "r") as f:
         account = json.load(f)
+
+    directory = 'Profiles/'
+    query = account["cpi"]
+    nn = NearestNeighbor()
+    result = nn.run(USER, directory)
+    print(result)
 
     pref_hist = TupleCollector().collect
     local, clicks, impressions = DataExtractor(pref_hist).extract
