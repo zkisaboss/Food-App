@@ -10,6 +10,9 @@ class AccountManager:
     Return username string.
     """
 
+    def __init__(self):
+        self.manage = self.interaction()
+
     @staticmethod
     def signup():  # Add a check to see if the username is already taken
         USER = input("Enter a username: ")
@@ -235,9 +238,10 @@ class UserBasedCollaborativeFiltering:
             - KNN (K-Nearest Neighbors): more accurate
             - ANN (Approximate Nearest Neighbor): more scalable
         """
-        nearest_neighbors = []
-        print("")
-        return nearest_neighbors
+        directory = 'Profiles/'
+
+        for filename in os.listdir(directory):
+            print(filename)
 
     def calculate_similarity(self):
         """
@@ -257,7 +261,9 @@ class UserBasedCollaborativeFiltering:
 
 
 if __name__ == '__main__':
-    USER = AccountManager().interaction()
+    UserBasedCollaborativeFiltering().get_nearest_neighbors()
+
+    USER = AccountManager().manage
 
     account_file = f"Profiles/{USER}.json"
     with open(account_file, "r") as f:
