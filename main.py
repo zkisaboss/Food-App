@@ -220,8 +220,8 @@ User-User: More Personalized, Less Robust. <-- BEST
 Item-Item: More Robust, Less Personalized.
 
 todo (user-user):
-1. Identify users with the most similar “interactions profile”. (nearest neighbors) to...
-2. Suggest items that are the most popular among these neighbors (and that are “new” to our user).
+1. Identify users with the most similar “interactions profile” (nearest neighbors).
+2. Suggest items that are the most popular among these neighbors (and new to our user).
 """
 
 
