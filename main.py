@@ -1,6 +1,7 @@
 import json
 import os
 import random
+import math
 
 
 class AccountManager:
@@ -224,40 +225,109 @@ todo (user-user):
 """
 
 
-class CollaborativeFiltering:
-    def approximate_nearest_neighbors(self):
-        """
-        Find users with the most similar interactions profile.
-            - KNN (K-Nearest Neighbors): more accurate
-            - ANN (Approximate Nearest Neighbor): more scalable
-        """
-        directory = 'Profiles/'
+class NearestNeighbor:
+    """
+    Find users with the most similar interactions profile.
+        - KNN (K-Nearest Neighbors): more accurate
+        - ANN (Approximate Nearest Neighbor): more scalable
+    """
 
-        for user_files in os.listdir(directory):
-            with open(os.path.join(directory, user_files), 'r') as f:
-                user = json.load(f)
-            for item in user["cpi"]:
-                if item not in account["cpi"]:
-                    account["items"].append(item)
+    def cosine_similarity(self, a, b):
+        """
+        Calculates the cosine similarity between two dictionaries a and b.
 
-    def calculate_similarity(self):
-        """
-        Calculate similarity between users based on interactions.
-        Return profile list sorted by similarity.
-        """
-        pass
+        Args:
+            a (dict): The first dictionary.
+            b (dict): The second dictionary.
 
-    def get_recommendations_for_user(self):
+        Returns:
+            float: The cosine similarity between the two dictionaries.
         """
-        Suggest popular items that are new to our user by iterating through sorted profile list.
+        dot_product = 0
+        norm_a = 0
+        norm_b = 0
+
+        for key in set(a.keys()) & set(b.keys()):
+            dot_product += a[key] * b[key]
+            norm_a += a[key] ** 2
+            norm_b += b[key] ** 2
+
+        if norm_a == 0 or norm_b == 0:
+            return 0
+        else:
+            return dot_product / math.sqrt(norm_a * norm_b)
+
+    def nearest_neighbor(self, q, data):
         """
-        pass
+        Finds the nearest neighbor of a query dictionary q in a list of dictionaries data.
+
+        Args:
+            q (dict): The query dictionary.
+            data (list): The list of dictionaries to search.
+
+        Returns:
+            dict: The dictionary in data that is closest to q in terms of cosine similarity.
+        """
+        best_match = None
+        best_similarity = 0
+
+        for d in data:
+            sim = self.cosine_similarity(q, d)
+
+            if sim > best_similarity:
+                best_match = d
+                best_similarity = sim
+
+        return best_match
+
+    def run(self, user, directory):
+        """
+        Runs the nearest neighbor algorithm to find the closest user to a given query.
+
+        Args:
+            user (dict): The query dictionary.
+            directory (str): The directory where user profiles are stored.
+
+        Returns:
+            dict: The dictionary in the directory that is closest to the query in terms of cosine similarity.
+        """
+        data = []
+        for user_file in os.listdir(directory):
+            if user_file != f"{user}.json":
+                with open(os.path.join(directory, user_file), 'r') as f:
+                    loaded_user = json.load(f)
+                    data.append(loaded_user["cpi"])
+
+        return self.nearest_neighbor(query, data)
 
 
 if __name__ == '__main__':
-    # CollaborativeFiltering().approximate_nearest_neighbors()
-
+    directory = 'Profiles/'
+    query = {
+        "steak": 88.88888888888889,
+        "calamari": 75.0,
+        "dumplings": 71.42857142857143,
+        "waffles": 69.23076923076923,
+        "barbecue ribs": 60.0,
+        "hamburger": 55.55555555555556,
+        "noodles": 50.0,
+        "grilled salmon": 50.0,
+        "pulled pork": 42.857142857142854,
+        "rice": 37.5,
+        "spaghetti": 33.33333333333333,
+        "soup": 33.33333333333333,
+        "chicken": 25.0,
+        "tandoori chicken": 25.0,
+        "tacos": 16.666666666666664,
+        "sushi": 0.0,
+        "pizza": 0.0
+    }
     USER = AccountManager().manage
+
+    nn = NearestNeighbor()
+    result = nn.run(USER, directory)
+    print(result)
+
 
     account_file = f"Profiles/{USER}.json"
     with open(account_file, "r") as f:
