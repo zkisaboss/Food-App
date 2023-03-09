@@ -219,38 +219,33 @@ One solution is a hybrid-based approach, e.g. user-user and item-item collaborat
 User-User: More Personalized, Less Robust. <-- BEST
 Item-Item: More Robust, Less Personalized.
 
+The consumer's similarity search must be light enough to run on their device.
+
 todo (user-user):
-1. Identify users with the most similar “interactions profile” (nearest neighbors).
-2. Suggest items that are the most popular among these neighbors (and new to our user).
+1. Identify users with the most similar "interactions profile" (nearest neighbors or 'NN').
+    i) Iterate through the NN's profile and append items not found in the current user profile to a list (new suggestions)
+    ii) Iterate through the next NN's profile and append items not found in the current user profile to the list (new suggestions).
+    iii) Repeat step ii until the list (new suggestions) contains five or more items.
+
+2. Suggest items that are the most popular among these neighbors (and new to our user). <-- How much variance do I apply to the suggested items?
+3. Brainstorm ways to avoid availability bias.
 """
 
 
 class NearestNeighbor:
-    """
-    Find users with the most similar interactions profile.
-        - KNN (K-Nearest Neighbors): more accurate
-        - ANN (Approximate Nearest Neighbor): more scalable
-    """
+    def __init__(self):
+        self.directory = 'Profiles/'
+        self.query = USER
 
-    def cosine_similarity(self, a, b):
-        """
-        Calculates the cosine similarity between two dictionaries a and b.
-
-        Args:
-            a (dict): The first dictionary.
-            b (dict): The second dictionary.
-
-        Returns:
-            float: The cosine similarity between the two dictionaries.
-        """
+    def cosine_similarity(self, d1, d2):
         dot_product = 0
         norm_a = 0
         norm_b = 0
 
-        for key in set(a.keys()) & set(b.keys()):
-            dot_product += a[key] * b[key]
-            norm_a += a[key] ** 2
-            norm_b += b[key] ** 2
+        for key in set(d1.keys()) & set(d2.keys()):
+            dot_product += d1[key] * d2[key]
+            norm_a += d1[key] ** 2
+            norm_b += d2[key] ** 2
 
         if norm_a == 0 or norm_b == 0:
             return 0
@@ -258,16 +253,6 @@ class NearestNeighbor:
             return dot_product / math.sqrt(norm_a * norm_b)
 
     def nearest_neighbor(self, q, data):
-        """
-        Finds the nearest neighbor of a query dictionary q in a list of dictionaries data.
-
-        Args:
-            q (dict): The query dictionary.
-            data (list): The list of dictionaries to search.
-
-        Returns:
-            dict: The dictionary in data that is closest to q in terms of cosine similarity.
-        """
         best_match = None
         best_similarity = 0
 
@@ -280,25 +265,27 @@ class NearestNeighbor:
 
         return best_match
 
-    def run(self, user, directory):
-        """
-        Runs the nearest neighbor algorithm to find the closest user to a given query.
-
-        Args:
-            user (dict): The query dictionary.
-            directory (str): The directory where user profiles are stored.
-
-        Returns:
-            dict: The dictionary in the directory that is closest to the query in terms of cosine similarity.
-        """
+    def run(self):
         data = []
-        for user_file in os.listdir(directory):
-            if user_file != f"{user}.json":
-                with open(os.path.join(directory, user_file), 'r') as f:
-                    loaded_user = json.load(f)
-                    data.append(loaded_user["cpi"])
 
-        return self.nearest_neighbor(query, data)
+        for user_file in os.listdir(self.directory):
+            if user_file == f"{self.query}.json":
+                continue
+
+            with open(os.path.join(self.directory, user_file), 'r') as f:
+                loaded_user = json.load(f)
+
+                if loaded_user["cpi"]:
+                    similarity = self.cosine_similarity(
+                        account["cpi"], loaded_user["cpi"])
+                    data.append(
+                        (similarity, next(iter(loaded_user)), loaded_user["cpi"]))
+
+        data = sorted(data, key=lambda x: x[0])
+        for i, item in enumerate(data):
+            print(f"File{i}: {item}")
+
+        return f"{data[0][1]}: {data[0][2]}"
 
 
 if __name__ == '__main__':
@@ -308,10 +295,8 @@ if __name__ == '__main__':
     with open(account_file, "r") as f:
         account = json.load(f)
 
-    directory = 'Profiles/'
-    query = account["cpi"]
     nn = NearestNeighbor()
-    result = nn.run(USER, directory)
+    result = nn.run()
     print(result)
 
     pref_hist = TupleCollector().collect
