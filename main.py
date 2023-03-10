@@ -290,7 +290,7 @@ class NearestNeighbors:
                         (similarity, username, loaded_user["cpi"]))
 
         data = sorted(data, key=lambda x: x[0], reverse=True)
-        return f"{data[0][1]}: {data[0][2]}"
+        return f"\nMy Dict: \n{USER}: {user['cpi']}\n \nMost Similar Dict ({data[0][0]}%): \n{data[0][1]}: {data[0][2]}\n"
 
 
 if __name__ == '__main__':
@@ -303,7 +303,7 @@ if __name__ == '__main__':
     nn = NearestNeighbors()
     result = nn.run()
     print(result)
-    ####################
+    #################### Connect previous data to tuple collector
     pref_hist = TupleCollector().collect
     local, clicks, impressions = DataExtractor(pref_hist).extract
     DataManager(local, clicks, impressions)
