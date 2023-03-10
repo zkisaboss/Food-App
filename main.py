@@ -17,7 +17,7 @@ class AccountManager:
         USER = input("Enter a username: ")
         PASS = input("Enter a password: ")
         account = {USER: PASS,
-                   "global": {}, "global_pct": {}, "clicks": {}, "impressions": {}, "cpi": {}}
+                   "cpi": {}, "clicks": {}, "impressions": {}, "global_pct": {}, "global": {}}
 
         with open(f"Profiles/{USER}.json", "w") as f:
             json.dump(account, f, indent=4, separators=(',', ': '))
@@ -147,12 +147,13 @@ class DataManager:
     """
 
     def __init__(self, local, clicks, impressions):
-        self.global_dict = self.combine_dicts(local, account["global"])
-        self.clicks = self.combine_dicts(clicks, account["clicks"])
+        self.clicks = self.combine_dicts(clicks, user["clicks"])
         self.impressions = self.combine_dicts(
-            impressions, account["impressions"])
+            impressions, user["impressions"])
 
-        self.save_data(account)
+        self.global_dict = self.combine_dicts(local, user["global"])
+
+        self.save_data(user)
 
     def combine_dicts(self, d1, d2):
         for key, value in d1.items():
@@ -175,17 +176,17 @@ class DataManager:
         }
         return dict(sorted(cpi.items(), key=lambda item: item[1], reverse=True))
 
-    def save_data(self, account):
-        account["global"] = self.global_dict
-        account["global_pct"] = self.number_to_percent(account["global"])
+    def save_data(self, user):
+        user["global"] = self.global_dict
+        user["global_pct"] = self.number_to_percent(user["global"])
 
-        account["clicks"] = self.clicks
-        account["impressions"] = self.impressions
-        account["cpi"] = self.get_cpi(
-            account["clicks"], account["impressions"])
+        user["clicks"] = self.clicks
+        user["impressions"] = self.impressions
+        user["cpi"] = self.get_cpi(
+            user["clicks"], user["impressions"])
 
-        with open(account_file, "w") as f:
-            json.dump(account, f, indent=4, separators=(',', ': '))
+        with open(user_file, "w") as f:
+            json.dump(user, f, indent=4, separators=(',', ': '))
 
 
 class ToolBox:
@@ -235,15 +236,17 @@ todo (user-user):
 
 class NearestNeighbors:
     def __init__(self):
-        self.directory = 'Profiles/'
         self.query = USER
+        self.user_file = user_file
+        self.directory = 'Profiles/'
 
     def calculate_similarity(self, n1, n2):
+        if n1 == n2 == 0:
+            return 0
         score = 1 - abs(n1 - n2) / (n1 + n2)
         return round(score * 100, 2)
 
     def compare_dicts(self, d1, d2):
-        # sourcery skip: move-assign-in-block, sum-comprehension
         total_similarity = 0
         num_keys = len(d1)
 
@@ -255,15 +258,14 @@ class NearestNeighbors:
 
         return round(total_similarity / num_keys, 2) if num_keys > 0 else 0
 
-
-    def nearest_neighbor(self, q, loaded_dict):
+    def nearest_neighbor(self, q, dicts):
         best_match = None
         best_similarity = 100
 
-        for d in loaded_dict:
-            sim = self.compare_dicts(q, loaded_dict)
+        for d in dicts:
+            sim = self.compare_dicts(q, dicts)
 
-            if sim > best_similarity:
+            if sim < best_similarity:
                 best_match = d
                 best_similarity = sim
 
@@ -272,39 +274,36 @@ class NearestNeighbors:
     def run(self):
         data = []
 
-        for user_file in os.listdir(self.directory):
-            if user_file == f"{self.query}.json":
+        for file in os.listdir(self.directory):
+            if f"Profiles/{file}" == self.user_file:
                 continue
 
-            with open(os.path.join(self.directory, user_file), 'r') as f:
+            with open(os.path.join(self.directory, file), 'r') as f:
                 loaded_user = json.load(f)
 
                 if loaded_user["cpi"]:
-                    similarity = self.nearest_neighbor(
-                        account["cpi"], loaded_user["cpi"])
+                    similarity = self.compare_dicts(
+                        user["cpi"], loaded_user["cpi"])
                     username = next(iter(loaded_user))
 
                     data.append(
                         (similarity, username, loaded_user["cpi"]))
 
-        data = sorted(data, key=lambda x: x[0])
-        for i, item in enumerate(data):
-            print(f"File{i}: {item}")
-
+        data = sorted(data, key=lambda x: x[0], reverse=True)
         return f"{data[0][1]}: {data[0][2]}"
 
 
 if __name__ == '__main__':
     USER = AccountManager().manage
 
-    account_file = f"Profiles/{USER}.json"
-    with open(account_file, "r") as f:
-        account = json.load(f)
-
+    user_file = f"Profiles/{USER}.json"
+    with open(user_file, "r") as f:
+        user = json.load(f)
+    ####################
     nn = NearestNeighbors()
     result = nn.run()
     print(result)
-
+    ####################
     pref_hist = TupleCollector().collect
     local, clicks, impressions = DataExtractor(pref_hist).extract
     DataManager(local, clicks, impressions)
