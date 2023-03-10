@@ -1,0 +1,35 @@
+{
+    "123": "abc",
+    "global": {
+        "hamburger": 4,
+        "calamari": 3,
+        "waffles": 2,
+        "tandoori chicken": 1
+    },
+    "global_pct": {
+        "hamburger": 40.0,
+        "calamari": 30.0,
+        "waffles": 20.0,
+        "tandoori chicken": 10.0
+    },
+    "clicks": {
+        "tandoori chicken": 1,
+        "waffles": 1,
+        "calamari": 1,
+        "hamburger": 1
+    },
+    "impressions": {
+        "tandoori chicken": 2,
+        "waffles": 2,
+        "calamari": 2,
+        "spaghetti": 1,
+        "hamburger": 1
+    },
+    "cpi": {
+        "hamburger": 100.0,
+        "tandoori chicken": 50.0,
+        "waffles": 50.0,
+        "calamari": 50.0,
+        "spaghetti": 0.0
+    }
+}

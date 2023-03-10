@@ -1,7 +1,6 @@
 import json
 import os
 import random
-import math
 
 
 class AccountManager:
@@ -202,7 +201,9 @@ class ToolBox:
     @staticmethod
     def calculate_similarity(n1, n2):
         score = 1 - abs(n1 - n2) / (n1 + n2)
-        return f"The similarity of {n1} and {n2} is {round(score * 100, 2)}% ({int(score * (n1 + n2))}/{n1 + n2})."
+        print(
+            f"The similarity of {n1} and {n2} is {round(score * 100, 2)}% ({int(score * (n1 + n2))}/{n1 + n2}).")
+        return round(score * 100, 2)
 
 
 """
@@ -232,32 +233,35 @@ todo (user-user):
 """
 
 
-class NearestNeighbor:
+class NearestNeighbors:
     def __init__(self):
         self.directory = 'Profiles/'
         self.query = USER
 
-    def cosine_similarity(self, d1, d2):
-        dot_product = 0
-        norm_a = 0
-        norm_b = 0
+    def calculate_similarity(self, n1, n2):
+        score = 1 - abs(n1 - n2) / (n1 + n2)
+        return round(score * 100, 2)
 
-        for key in set(d1.keys()) & set(d2.keys()):
-            dot_product += d1[key] * d2[key]
-            norm_a += d1[key] ** 2
-            norm_b += d2[key] ** 2
+    def compare_dicts(self, d1, d2):
+        # sourcery skip: move-assign-in-block, sum-comprehension
+        total_similarity = 0
+        num_keys = len(d1)
 
-        if norm_a == 0 or norm_b == 0:
-            return 0
-        else:
-            return dot_product / math.sqrt(norm_a * norm_b)
+        for key, val in d1.items():
+            if key in d2:
+                total_similarity += self.calculate_similarity(val, d2[key])
+            else:
+                num_keys -= 1
 
-    def nearest_neighbor(self, q, data):
+        return round(total_similarity / num_keys, 2) if num_keys > 0 else 0
+
+
+    def nearest_neighbor(self, q, loaded_dict):
         best_match = None
-        best_similarity = 0
+        best_similarity = 100
 
-        for d in data:
-            sim = self.cosine_similarity(q, d)
+        for d in loaded_dict:
+            sim = self.compare_dicts(q, loaded_dict)
 
             if sim > best_similarity:
                 best_match = d
@@ -276,10 +280,12 @@ class NearestNeighbor:
                 loaded_user = json.load(f)
 
                 if loaded_user["cpi"]:
-                    similarity = self.cosine_similarity(
+                    similarity = self.nearest_neighbor(
                         account["cpi"], loaded_user["cpi"])
+                    username = next(iter(loaded_user))
+
                     data.append(
-                        (similarity, next(iter(loaded_user)), loaded_user["cpi"]))
+                        (similarity, username, loaded_user["cpi"]))
 
         data = sorted(data, key=lambda x: x[0])
         for i, item in enumerate(data):
@@ -295,17 +301,15 @@ if __name__ == '__main__':
     with open(account_file, "r") as f:
         account = json.load(f)
 
-    nn = NearestNeighbor()
+    nn = NearestNeighbors()
     result = nn.run()
     print(result)
 
     pref_hist = TupleCollector().collect
     local, clicks, impressions = DataExtractor(pref_hist).extract
-
     DataManager(local, clicks, impressions)
 
     while retry := ToolBox().proceed_or_retry():
         pref_hist = TupleCollector().collect
         local, clicks, impressions = DataExtractor(pref_hist).extract
-
         DataManager(local, clicks, impressions)
