@@ -17,7 +17,7 @@ class AccountManager:
         USER = input("Enter a username: ")
         PASS = input("Enter a password: ")
         account = {USER: PASS,
-                   "cpi": {}, "clicks": {}, "impressions": {}, "global_pct": {}, "global": {}}
+                   "cpi": {}, "clicks": {}, "impressions": {}}
 
         with open(f"Profiles/{USER}.json", "w") as f:
             json.dump(account, f, indent=4, separators=(',', ': '))
@@ -113,7 +113,7 @@ class TupleCollector:
 class DataExtractor:
     """
     Takes a list: pref_hist.
-    Returns dictionaries: local, clicks, impressions.
+    Returns dictionaries: clicks, impressions.
     """
 
     def __init__(self, pref_hist):
@@ -121,51 +121,35 @@ class DataExtractor:
         self.extract = self.extract_data()
 
     def extract_data(self):
-        local = {}
         clicks = {}
         impressions = {}
 
         for key1, key2 in self.pref_hist:
-
-            if key1 not in local:
-                local[key1] = local.get(key2, 0) + 1
-            else:
-                local[key1] += 1
-
             clicks[key1] = clicks.get(key1, 0) + 1
 
             for key in [key1, key2]:
                 impressions[key] = impressions.get(key, 0) + 1
 
-        return local, clicks, impressions
+        return clicks, impressions
 
 
 class DataManager:
     """
-    Takes dictionaries: local, clicks, impressions.
+    Takes dictionaries: clicks, impressions.
     Updates the user's JSON file.
     """
 
-    def __init__(self, local, clicks, impressions):
-        self.clicks = self.combine_dicts(clicks, user["clicks"])
-        self.impressions = self.combine_dicts(
+    def __init__(self, clicks, impressions):
+        self.clicks = self.merge_dicts(clicks, user["clicks"])
+        self.impressions = self.merge_dicts(
             impressions, user["impressions"])
+        self.save(user)
 
-        self.global_dict = self.combine_dicts(local, user["global"])
-
-        self.save_data(user)
-
-    def combine_dicts(self, d1, d2):
+    def merge_dicts(self, d1, d2):
         for key, value in d1.items():
             d2[key] = d2.get(key, 0) + value
 
         return dict(sorted(d2.items(), key=lambda item: item[1], reverse=True))
-
-    def number_to_percent(self, d):
-        return {
-            key: d[key] / sum(d.values()) * 100
-            for key in d
-        }
 
     def get_cpi(self, d1, d2):
         cpi = {
@@ -175,10 +159,7 @@ class DataManager:
         }
         return dict(sorted(cpi.items(), key=lambda item: item[1], reverse=True))
 
-    def save_data(self, user):
-        user["global"] = self.global_dict
-        user["global_pct"] = self.number_to_percent(user["global"])
-
+    def save(self, user):
         user["clicks"] = self.clicks
         user["impressions"] = self.impressions
         user["cpi"] = self.get_cpi(
@@ -204,6 +185,13 @@ class ToolBox:
         print(
             f"The similarity of {n1} and {n2} is {round(score * 100, 2)}% ({int(score * (n1 + n2))}/{n1 + n2}).")
         return round(score * 100, 2)
+
+    @staticmethod
+    def number_to_percent(d):
+        return {
+            key: d[key] / sum(d.values()) * 100
+            for key in d
+        }
 
 
 """
@@ -240,8 +228,6 @@ class NearestNeighbors:
         self.directory = 'Profiles/'
 
     def calculate_similarity(self, n1, n2):
-        if n1 == n2:
-            return 100.0
         score = 1 - abs(n1 - n2) / (n1 + n2)
         return round(score * 100, 2)
 
@@ -252,9 +238,10 @@ class NearestNeighbors:
         for key, val in d1.items():
             if key in d2:
                 total_similarity += self.calculate_similarity(val, d2[key])
-                print(f"total sim: {val, d2[key]} = {total_similarity}")
+            else:
+                num_keys -= 1
 
-        return round(total_similarity / num_keys, 2) if num_keys > 0 else 0
+        return round(total_similarity / num_keys, 2) if num_keys > 0 else 0.00
 
     def run(self):
         data = []
@@ -291,10 +278,10 @@ if __name__ == '__main__':
     print(result)
     # Connect previous data to tuple collector
     pref_hist = TupleCollector().collect
-    local, clicks, impressions = DataExtractor(pref_hist).extract
-    DataManager(local, clicks, impressions)
+    clicks, impressions = DataExtractor(pref_hist).extract
+    DataManager(clicks, impressions)
 
     while retry := ToolBox().proceed_or_retry():
         pref_hist = TupleCollector().collect
-        local, clicks, impressions = DataExtractor(pref_hist).extract
-        DataManager(local, clicks, impressions)
+        clicks, impressions = DataExtractor(pref_hist).extract
+        DataManager(clicks, impressions)
