@@ -1,31 +1,41 @@
 {
     "abc": "123",
     "clicks": {
+        "hamburger": 5,
         "waffles": 3,
+        "noodles": 2,
         "steak": 1,
         "dumplings": 1,
         "chicken": 1,
         "pulled pork": 1,
-        "barbecue ribs": 1
+        "barbecue ribs": 1,
+        "spaghetti": 1
     },
     "impressions": {
+        "hamburger": 5,
+        "noodles": 4,
         "waffles": 3,
+        "dumplings": 3,
         "steak": 2,
-        "dumplings": 2,
         "chicken": 2,
         "barbecue ribs": 2,
-        "calamari": 1,
+        "calamari": 2,
+        "sushi": 2,
+        "grilled salmon": 2,
+        "spaghetti": 2,
         "pulled pork": 1,
-        "sushi": 1,
         "rice": 1,
-        "grilled salmon": 1
+        "soup": 1
     },
     "cpi": {
+        "hamburger": 100.0,
         "waffles": 100.0,
         "pulled pork": 100.0,
+        "noodles": 50.0,
         "steak": 50.0,
-        "dumplings": 50.0,
         "chicken": 50.0,
-        "barbecue ribs": 50.0
+        "barbecue ribs": 50.0,
+        "spaghetti": 50.0,
+        "dumplings": 33.33333333333333
     }
 }

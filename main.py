@@ -47,12 +47,12 @@ class AccountManager:
 
     def interaction(self):
         while True:
-            choice = input(
+            user_input = input(
                 "Enter '1' to create a new account or '2' to login to an existing one: ")
 
-            if choice == '1':
+            if user_input == '1':
                 return AccountManager.signup()
-            elif choice == '2':
+            elif user_input == '2':
                 return AccountManager.login()
             else:
                 print("Invalid choice. Please enter '1' or '2'.")
@@ -65,48 +65,34 @@ class TupleCollector:
     """
 
     def __init__(self):
-        self.options_list = [
-            "pizza",
-            "chicken",
-            "rice",
-            "noodles",
-            "tandoori chicken",
-            "spaghetti",
-            "sushi",
-            "steak",
-            "hamburger",
-            "tacos",
-            "barbecue ribs",
-            "dumplings",
-            "soup",
-            "waffles",
-            "pulled pork",
-            "grilled salmon",
-            "calamari",
+        self.options = [
+            "pizza", "chicken", "rice", "noodles", "tandoori chicken",
+            "spaghetti", "sushi", "steak", "hamburger", "tacos",
+            "barbecue ribs", "dumplings", "soup", "waffles", "pulled pork",
+            "grilled salmon", "calamari",
         ]
-        self.collect = self.gather_pref()
+        self.collect = self.collect_preferences()
 
     def preference(self, option1, option2):
         print(f"Do you prefer: {option1} or {option2}?")
         return int(input("Enter 1 for the first option or 2 for the second: "))
 
-    def gather_pref(self):
+    def collect_preferences(self):
         pref_hist = []
-        opt1 = random.choice(self.options_list)
+        opt1 = random.choice(self.options)
 
-        for _ in range(min(4, len(self.options_list) - 1)):
+        for _ in range(min(4, len(self.options) - 1)):
             opt2 = random.choice(
-                [option for option in self.options_list if option != opt1]
-            )
+                [option for option in self.options if option != opt1])
             choice = self.preference(opt1, opt2)
 
             if choice == 2:
                 opt1, opt2 = opt2, opt1
 
             pref_hist.append((opt1, opt2))
-            self.options_list.remove(opt2)
+            self.options.remove(opt2)
 
-        self.options_list.remove(opt1)
+        self.options.remove(opt1)
         return pref_hist
 
 
@@ -116,7 +102,7 @@ class DataExtractor:
     Returns dictionaries: clicks, impressions.
     """
 
-    def __init__(self, pref_hist):
+    def __init__(self):
         self.pref_hist = pref_hist
         self.extract = self.extract_data()
 
@@ -262,8 +248,9 @@ class NearestNeighbors:
                         (similarity, username, loaded_user["cpi"]))
 
         data = sorted(data, key=lambda x: x[0], reverse=True)
-        print("\n", data)
-        print (f"\nMy Dict: \n{USER}: {user['cpi']}\n \nMost Similar Dict ({data[0][0]}%): \n{data[0][1]}: {data[0][2]}\n")
+        #print("\n", data)
+        print(
+            f"\nMy Dict: \n{USER}: {user['cpi']}\n \nMost Similar Dict ({data[0][0]}%): \n{data[0][1]}: {data[0][2]}\n")
 
 
 if __name__ == '__main__':
@@ -276,10 +263,10 @@ if __name__ == '__main__':
     NearestNeighbors().run()
     ###############################
     pref_hist = TupleCollector().collect
-    clicks, impressions = DataExtractor(pref_hist).extract
+    clicks, impressions = DataExtractor().extract
     DataManager(clicks, impressions)
 
     while retry := ToolBox().proceed_or_retry():
         pref_hist = TupleCollector().collect
-        clicks, impressions = DataExtractor(pref_hist).extract
+        clicks, impressions = DataExtractor().extract
         DataManager(clicks, impressions)
