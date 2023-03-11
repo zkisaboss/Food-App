@@ -262,7 +262,7 @@ class NearestNeighbors:
                         (similarity, username, loaded_user["cpi"]))
 
         data = sorted(data, key=lambda x: x[0], reverse=True)
-        print(data)
+        print("\n", data)
         return f"\nMy Dict: \n{USER}: {user['cpi']}\n \nMost Similar Dict ({data[0][0]}%): \n{data[0][1]}: {data[0][2]}\n"
 
 
@@ -272,11 +272,10 @@ if __name__ == '__main__':
     user_file = f"Profiles/{USER}.json"
     with open(user_file, "r") as f:
         user = json.load(f)
-    ####################
-    nn = NearestNeighbors()
-    result = nn.run()
+    ###############################
+    result = NearestNeighbors().run()
     print(result)
-    # Connect previous data to tuple collector
+    ###############################
     pref_hist = TupleCollector().collect
     clicks, impressions = DataExtractor(pref_hist).extract
     DataManager(clicks, impressions)
