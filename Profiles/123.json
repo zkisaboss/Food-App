@@ -1,35 +1,72 @@
 {
     "123": "abc",
     "global": {
+        "barbecue ribs": 8,
+        "sushi": 5,
         "hamburger": 4,
+        "pulled pork": 4,
         "calamari": 3,
+        "steak": 3,
         "waffles": 2,
-        "tandoori chicken": 1
+        "dumplings": 2,
+        "tandoori chicken": 1,
+        "tacos": 1,
+        "chicken": 1
     },
     "global_pct": {
-        "hamburger": 40.0,
-        "calamari": 30.0,
-        "waffles": 20.0,
-        "tandoori chicken": 10.0
+        "barbecue ribs": 23.52941176470588,
+        "sushi": 14.705882352941178,
+        "hamburger": 11.76470588235294,
+        "pulled pork": 11.76470588235294,
+        "calamari": 8.823529411764707,
+        "steak": 8.823529411764707,
+        "waffles": 5.88235294117647,
+        "dumplings": 5.88235294117647,
+        "tandoori chicken": 2.941176470588235,
+        "tacos": 2.941176470588235,
+        "chicken": 2.941176470588235
     },
     "clicks": {
+        "barbecue ribs": 7,
+        "pulled pork": 3,
+        "sushi": 2,
         "tandoori chicken": 1,
         "waffles": 1,
         "calamari": 1,
-        "hamburger": 1
+        "hamburger": 1,
+        "tacos": 1,
+        "chicken": 1,
+        "dumplings": 1,
+        "steak": 1
     },
     "impressions": {
-        "tandoori chicken": 2,
-        "waffles": 2,
-        "calamari": 2,
+        "barbecue ribs": 7,
+        "pulled pork": 4,
+        "soup": 4,
+        "tandoori chicken": 3,
+        "calamari": 3,
+        "waffles": 3,
+        "sushi": 3,
+        "tacos": 2,
+        "rice": 2,
+        "chicken": 2,
+        "dumplings": 2,
+        "steak": 2,
         "spaghetti": 1,
-        "hamburger": 1
+        "hamburger": 1,
+        "pizza": 1
     },
     "cpi": {
+        "barbecue ribs": 100.0,
         "hamburger": 100.0,
-        "tandoori chicken": 50.0,
-        "waffles": 50.0,
-        "calamari": 50.0,
-        "spaghetti": 0.0
+        "pulled pork": 75.0,
+        "sushi": 66.66666666666666,
+        "tacos": 50.0,
+        "chicken": 50.0,
+        "dumplings": 50.0,
+        "steak": 50.0,
+        "tandoori chicken": 33.33333333333333,
+        "calamari": 33.33333333333333,
+        "waffles": 33.33333333333333
     }
 }

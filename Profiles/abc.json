@@ -2,34 +2,46 @@
     "abc": "123",
     "global": {
         "pulled pork": 4,
+        "waffles": 4,
         "chicken": 3,
         "dumplings": 2,
-        "steak": 1
+        "steak": 1,
+        "barbecue ribs": 1
     },
     "global_pct": {
-        "pulled pork": 40.0,
-        "chicken": 30.0,
-        "dumplings": 20.0,
-        "steak": 10.0
+        "pulled pork": 26.666666666666668,
+        "waffles": 26.666666666666668,
+        "chicken": 20.0,
+        "dumplings": 13.333333333333334,
+        "steak": 6.666666666666667,
+        "barbecue ribs": 6.666666666666667
     },
     "clicks": {
+        "waffles": 3,
         "steak": 1,
         "dumplings": 1,
         "chicken": 1,
-        "pulled pork": 1
+        "pulled pork": 1,
+        "barbecue ribs": 1
     },
     "impressions": {
+        "waffles": 3,
         "steak": 2,
         "dumplings": 2,
         "chicken": 2,
+        "barbecue ribs": 2,
         "calamari": 1,
-        "pulled pork": 1
+        "pulled pork": 1,
+        "sushi": 1,
+        "rice": 1,
+        "grilled salmon": 1
     },
     "cpi": {
+        "waffles": 100.0,
         "pulled pork": 100.0,
         "steak": 50.0,
         "dumplings": 50.0,
         "chicken": 50.0,
-        "calamari": 0.0
+        "barbecue ribs": 50.0
     }
 }

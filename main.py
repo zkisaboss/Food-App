@@ -170,9 +170,8 @@ class DataManager:
     def get_cpi(self, d1, d2):
         cpi = {
             key: (d1[key] / d2[key]) * 100
-            if d1.get(key) and d2.get(key)
-            else 0.0
             for key in d2
+            if d1.get(key) and d2.get(key)
         }
         return dict(sorted(cpi.items(), key=lambda item: item[1], reverse=True))
 
@@ -241,8 +240,8 @@ class NearestNeighbors:
         self.directory = 'Profiles/'
 
     def calculate_similarity(self, n1, n2):
-        if n1 == n2 == 0:
-            return 0
+        if n1 == n2:
+            return 100.0
         score = 1 - abs(n1 - n2) / (n1 + n2)
         return round(score * 100, 2)
 
@@ -253,29 +252,15 @@ class NearestNeighbors:
         for key, val in d1.items():
             if key in d2:
                 total_similarity += self.calculate_similarity(val, d2[key])
-            else:
-                num_keys -= 1
+                print(f"total sim: {val, d2[key]} = {total_similarity}")
 
         return round(total_similarity / num_keys, 2) if num_keys > 0 else 0
-
-    def nearest_neighbor(self, q, dicts):
-        best_match = None
-        best_similarity = 100
-
-        for d in dicts:
-            sim = self.compare_dicts(q, dicts)
-
-            if sim < best_similarity:
-                best_match = d
-                best_similarity = sim
-
-        return best_match
 
     def run(self):
         data = []
 
         for file in os.listdir(self.directory):
-            if f"Profiles/{file}" == self.user_file:
+            if self.user_file == f"Profiles/{file}":
                 continue
 
             with open(os.path.join(self.directory, file), 'r') as f:
@@ -290,6 +275,7 @@ class NearestNeighbors:
                         (similarity, username, loaded_user["cpi"]))
 
         data = sorted(data, key=lambda x: x[0], reverse=True)
+        print(data)
         return f"\nMy Dict: \n{USER}: {user['cpi']}\n \nMost Similar Dict ({data[0][0]}%): \n{data[0][1]}: {data[0][2]}\n"
 
 
@@ -303,7 +289,7 @@ if __name__ == '__main__':
     nn = NearestNeighbors()
     result = nn.run()
     print(result)
-    #################### Connect previous data to tuple collector
+    # Connect previous data to tuple collector
     pref_hist = TupleCollector().collect
     local, clicks, impressions = DataExtractor(pref_hist).extract
     DataManager(local, clicks, impressions)
