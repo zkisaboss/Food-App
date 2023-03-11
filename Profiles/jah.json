@@ -1,25 +1,5 @@
 {
     "jah": "123",
-    "global": {
-        "barbecue ribs": 8,
-        "hamburger": 4,
-        "pulled pork": 4,
-        "calamari": 3,
-        "waffles": 2,
-        "tandoori chicken": 1,
-        "tacos": 1,
-        "sushi": 1
-    },
-    "global_pct": {
-        "barbecue ribs": 33.33333333333333,
-        "hamburger": 16.666666666666664,
-        "pulled pork": 16.666666666666664,
-        "calamari": 12.5,
-        "waffles": 8.333333333333332,
-        "tandoori chicken": 4.166666666666666,
-        "tacos": 4.166666666666666,
-        "sushi": 4.166666666666666
-    },
     "clicks": {
         "barbecue ribs": 7,
         "steak": 4,

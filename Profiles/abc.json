@@ -1,21 +1,5 @@
 {
     "abc": "123",
-    "global": {
-        "pulled pork": 4,
-        "waffles": 4,
-        "chicken": 3,
-        "dumplings": 2,
-        "steak": 1,
-        "barbecue ribs": 1
-    },
-    "global_pct": {
-        "pulled pork": 26.666666666666668,
-        "waffles": 26.666666666666668,
-        "chicken": 20.0,
-        "dumplings": 13.333333333333334,
-        "steak": 6.666666666666667,
-        "barbecue ribs": 6.666666666666667
-    },
     "clicks": {
         "waffles": 3,
         "steak": 1,

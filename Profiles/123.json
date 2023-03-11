@@ -1,33 +1,5 @@
 {
     "123": "abc",
-    "global": {
-        "barbecue ribs": 8,
-        "sushi": 5,
-        "hamburger": 4,
-        "pulled pork": 4,
-        "grilled salmon": 4,
-        "calamari": 3,
-        "steak": 3,
-        "waffles": 2,
-        "dumplings": 2,
-        "tandoori chicken": 1,
-        "tacos": 1,
-        "chicken": 1
-    },
-    "global_pct": {
-        "barbecue ribs": 21.052631578947366,
-        "sushi": 13.157894736842104,
-        "hamburger": 10.526315789473683,
-        "pulled pork": 10.526315789473683,
-        "grilled salmon": 10.526315789473683,
-        "calamari": 7.894736842105263,
-        "steak": 7.894736842105263,
-        "waffles": 5.263157894736842,
-        "dumplings": 5.263157894736842,
-        "tandoori chicken": 2.631578947368421,
-        "tacos": 2.631578947368421,
-        "chicken": 2.631578947368421
-    },
     "clicks": {
         "barbecue ribs": 7,
         "grilled salmon": 4,
