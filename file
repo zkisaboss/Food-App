@@ -1,5 +1,0 @@
-def calculate_similarity(n1, n2):
-    score = 1 - abs(n1 - n2) / (n1 + n2)
-    return f"The similarity of {n1} and {n2} is {round(score * 100, 2)}% ({int(score * (n1 + n2))}/{n1 + n2})."
-
-calculate_similarity(50, 100)

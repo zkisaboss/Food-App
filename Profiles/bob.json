@@ -1,0 +1,22 @@
+{
+    "bob": "123",
+    "clicks": {
+        "spaghetti": 4,
+        "hamburger": 4
+    },
+    "impressions": {
+        "spaghetti": 5,
+        "hamburger": 4,
+        "steak": 1,
+        "waffles": 1,
+        "noodles": 1,
+        "chicken": 1,
+        "rice": 1,
+        "tacos": 1,
+        "calamari": 1
+    },
+    "cpi": {
+        "hamburger": 100.0,
+        "spaghetti": 80.0
+    }
+}

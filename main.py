@@ -9,15 +9,17 @@ class AccountManager:
     Returns a variable containing the username: USER.
     """
 
-    def __init__(self):
-        self.manage = self.interaction()
-
     @staticmethod
-    def signup():  # Add a check to see if the username is already taken
-        USER = input("Enter a username: ")
+    def signup():
+        while True:
+            USER = input("Enter a username: ")
+            if os.path.exists(f"Profiles/{USER}.json"):
+                print("Username already exists. Please try a different username.")
+            else:
+                break
+
         PASS = input("Enter a password: ")
-        account = {USER: PASS,
-                   "clicks": {}, "impressions": {}, "cpi": {}}
+        account = {USER: PASS, "clicks": {}, "impressions": {}, "cpi": {}}
 
         with open(f"Profiles/{USER}.json", "w") as f:
             json.dump(account, f, indent=4, separators=(',', ': '))
@@ -51,11 +53,15 @@ class AccountManager:
                 "Enter '1' to create a new account or '2' to login to an existing one: ")
 
             if user_input == '1':
-                return AccountManager.signup()
+                return self.signup()
             elif user_input == '2':
-                return AccountManager.login()
+                return self.login()
             else:
                 print("Invalid choice. Please enter '1' or '2'.")
+
+    @property
+    def manage(self):
+        return self.interaction()
 
 
 class TupleCollector:
@@ -71,30 +77,32 @@ class TupleCollector:
             "barbecue ribs", "dumplings", "soup", "waffles", "pulled pork",
             "grilled salmon", "calamari",
         ]
-        self.collect = self.collect_preferences()
 
     @staticmethod
-    def preference(option1, option2):
-        print(f"Do you prefer: {option1} or {option2}?")
-        return int(input("Enter 1 for the first option or 2 for the second: "))
+    def preference(a, b):
+        print(f"Do you prefer: {a} or {b}?")
+        if int(input("Enter 1 for the first option or 2 for the second: ")) == 2:
+            a, b = b, a
+        return (a, b)
 
     def collect_preferences(self):
         pref_hist = []
-        opt1 = random.choice(self.options)
+        a = random.choice(self.options)
 
         for _ in range(min(4, len(self.options) - 1)):
-            opt2 = random.choice(
-                [option for option in self.options if option != opt1])
-            choice = self.preference(opt1, opt2)
+            b = random.choice([x for x in self.options if x != a])
+            
+            a, b = self.preference(a, b)
+            pref_hist.append((a, b))
+            
+            self.options.remove(b)
 
-            if choice == 2:
-                opt1, opt2 = opt2, opt1
-
-            pref_hist.append((opt1, opt2))
-            self.options.remove(opt2)
-
-        self.options.remove(opt1)
+        self.options.remove(a)
         return pref_hist
+
+    @property
+    def collect(self):
+        return self.collect_preferences()
 
 
 class DataExtractor:
@@ -105,7 +113,6 @@ class DataExtractor:
 
     def __init__(self):
         self.pref_hist = pref_hist
-        self.extract = self.extract_data()
 
     def extract_data(self):
         clicks = {}
@@ -113,12 +120,14 @@ class DataExtractor:
 
         for key1, key2 in self.pref_hist:
             clicks[key1] = clicks.get(key1, 0) + 1
-
-            for key in [key1, key2]:
-                impressions[key] = impressions.get(key, 0) + 1
+            impressions[key1] = impressions.get(key1, 0) + 1
+            impressions[key2] = impressions.get(key2, 0) + 1
 
         return clicks, impressions
 
+    @property
+    def extract(self):
+        return self.extract_data()
 
 class DataManager:
     """
@@ -131,19 +140,21 @@ class DataManager:
         self.impressions = self.merge(i, user["impressions"])
         self.update(user)
 
-    def merge(self, d1, d2):
+    @staticmethod
+    def merge(d1, d2):
         for key, value in d1.items():
             d2[key] = d2.get(key, 0) + value
 
         return dict(sorted(d2.items(), key=lambda item: item[1], reverse=True))
 
-    def get_ratio(self, d1, d2):
-        dictionary = {
+    @staticmethod
+    def get_ratio(d1, d2):
+        d3 = {
             key: (d1[key] / d2[key]) * 100
             for key in d2
             if d1.get(key) and d2.get(key)
         }
-        return dict(sorted(dictionary.items(), key=lambda item: item[1], reverse=True))
+        return dict(sorted(d3.items(), key=lambda item: item[1], reverse=True))
 
     def update(self, user):
         user["clicks"] = self.clicks
@@ -167,10 +178,10 @@ class ToolBox:
     @staticmethod
     def similarity(n1, n2):
         score = 1 - abs(n1 - n2) / (n1 + n2)
-        similarity = round(score * 100, 2)
-        print(
-            f"The similarity of {n1} and {n2} is {similarity}% ({int(score * (n1 + n2))}/{n1 + n2}).")
-        return similarity
+        percent = round(score * 100, 2)
+        fraction = f"({int(score * (n1 + n2))}/{n1 + n2})."
+        print(f"The similarity of {n1} and {n2} is {percent}% {fraction}")
+        return percent
 
     @staticmethod
     def number_to_percent(d):
@@ -187,22 +198,17 @@ https://towardsdatascience.com/introduction-to-recommender-systems-6c66cf15ada
 https://miro.medium.com/v2/resize:fit:1400/format:webp/1*ReuY4yOoqKMatHNJupcM5A@2x.png
 https://miro.medium.com/v2/resize:fit:1400/format:webp/1*J7bZ-K-6RwmwlYUqoXFOOQ@2x.png
 
-It is necessary to be extremely careful to avoid a “rich-get-richer” effect for popular items
-and to avoid getting users stuck into an “information confinement area”.
-One solution is a hybrid-based approach, e.g. user-user and item-item collaborative filtering.
+- Avoid a "rich-get-richer" effect for popular items 
+- Avoid getting users stuck into an "information confinement area."
+One solution is a hybrid-based approach, e.g., user-user and item-item collaborative filtering.
 
-User-User: More Personalized, Less Robust. <-- BEST
-Item-Item: More Robust, Less Personalized.
-
-The consumer's similarity search must be light enough to run on their device.
-
-todo (user-user):
+Todo (user-user):
 1. Identify users with the most similar "interactions profile" (nearest neighbors or 'NN').
     i) Iterate through the NN's profile and append items not found in the current user profile to a list (new suggestions)
-    ii) Iterate through the next NN's profile and append items not found in the current user profile to the list (new suggestions).
+    ii) Iterate through the following NN's profile and append items not found in the current user profile to the list (new suggestions).
     iii) Repeat step ii until the list (new suggestions) contains five or more items.
 
-2. Suggest items that are the most popular among these neighbors (and new to our user). <-- How much variance do I apply to the suggested items?
+2. Suggest items that are the most popular among these neighbors (and new to our user).
 3. Brainstorm ways to avoid availability bias.
 """
 
@@ -217,17 +223,19 @@ class NearestNeighbors:
         score = 1 - abs(n1 - n2) / (n1 + n2)
         return round(score * 100, 2)
 
-    def compare(self, d1, d2):
+    def compare(self, d1, d2):  # sourcery skip: assign-if-exp, reintroduce-else
         total_similarity = 0
-        num_keys = len(d1)
+        num_keys = 0
 
         for key, val in d1.items():
             if key in d2:
                 total_similarity += self.similarity(val, d2[key])
-            else:
-                num_keys -= 1
+                num_keys += 1
 
-        return round(total_similarity / num_keys, 2) if num_keys > 0 else 0.00
+        if num_keys == 0:
+            return 0.00
+
+        return round(total_similarity / num_keys, 2)
 
     def run(self):
         data = []
@@ -242,7 +250,6 @@ class NearestNeighbors:
                 if loaded_user["cpi"]:
                     similarity = self.compare(user["cpi"], loaded_user["cpi"])
                     username = next(iter(loaded_user))
-
                     data.append((similarity, username, loaded_user["cpi"]))
 
         data = sorted(data, key=lambda x: x[0], reverse=True)
@@ -257,9 +264,9 @@ if __name__ == '__main__':
     user_file = f"Profiles/{USER}.json"
     with open(user_file, "r") as f:
         user = json.load(f)
-    ###############################
+
     NearestNeighbors().run()
-    ###############################
+
     pref_hist = TupleCollector().collect
     clicks, impressions = DataExtractor().extract
     DataManager(clicks, impressions)
