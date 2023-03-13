@@ -73,7 +73,8 @@ class TupleCollector:
         ]
         self.collect = self.collect_preferences()
 
-    def preference(self, option1, option2):
+    @staticmethod
+    def preference(option1, option2):
         print(f"Do you prefer: {option1} or {option2}?")
         return int(input("Enter 1 for the first option or 2 for the second: "))
 
@@ -164,11 +165,12 @@ class ToolBox:
         return int(input("Enter 1 to Proceed or 2 to Retry: ")) == 2
 
     @staticmethod
-    def calculate_similarity(n1, n2):
+    def similarity(n1, n2):
         score = 1 - abs(n1 - n2) / (n1 + n2)
+        similarity = round(score * 100, 2)
         print(
-            f"The similarity of {n1} and {n2} is {round(score * 100, 2)}% ({int(score * (n1 + n2))}/{n1 + n2}).")
-        return round(score * 100, 2)
+            f"The similarity of {n1} and {n2} is {similarity}% ({int(score * (n1 + n2))}/{n1 + n2}).")
+        return similarity
 
     @staticmethod
     def number_to_percent(d):
@@ -210,17 +212,18 @@ class NearestNeighbors:
         self.user_file = user_file
         self.directory = 'Profiles/'
 
-    def calculate_similarity(self, n1, n2):
+    @staticmethod
+    def similarity(n1, n2):
         score = 1 - abs(n1 - n2) / (n1 + n2)
         return round(score * 100, 2)
 
-    def compare_dicts(self, d1, d2):
+    def compare(self, d1, d2):
         total_similarity = 0
         num_keys = len(d1)
 
         for key, val in d1.items():
             if key in d2:
-                total_similarity += self.calculate_similarity(val, d2[key])
+                total_similarity += self.similarity(val, d2[key])
             else:
                 num_keys -= 1
 
@@ -237,8 +240,7 @@ class NearestNeighbors:
                 loaded_user = json.load(f)
 
                 if loaded_user["cpi"]:
-                    similarity = self.compare_dicts(
-                        user["cpi"], loaded_user["cpi"])
+                    similarity = self.compare(user["cpi"], loaded_user["cpi"])
                     username = next(iter(loaded_user))
 
                     data.append((similarity, username, loaded_user["cpi"]))
