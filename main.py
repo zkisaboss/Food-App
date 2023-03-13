@@ -17,7 +17,7 @@ class AccountManager:
         USER = input("Enter a username: ")
         PASS = input("Enter a password: ")
         account = {USER: PASS,
-                   "cpi": {}, "clicks": {}, "impressions": {}}
+                   "clicks": {}, "impressions": {}, "cpi": {}}
 
         with open(f"Profiles/{USER}.json", "w") as f:
             json.dump(account, f, indent=4, separators=(',', ': '))
@@ -125,31 +125,29 @@ class DataManager:
     Updates the user's JSON file.
     """
 
-    def __init__(self, clicks, impressions):
-        self.clicks = self.merge_dicts(clicks, user["clicks"])
-        self.impressions = self.merge_dicts(
-            impressions, user["impressions"])
-        self.save(user)
+    def __init__(self, c, i):
+        self.clicks = self.merge(c, user["clicks"])
+        self.impressions = self.merge(i, user["impressions"])
+        self.update(user)
 
-    def merge_dicts(self, d1, d2):
+    def merge(self, d1, d2):
         for key, value in d1.items():
             d2[key] = d2.get(key, 0) + value
 
         return dict(sorted(d2.items(), key=lambda item: item[1], reverse=True))
 
-    def get_cpi(self, d1, d2):
-        cpi = {
+    def get_ratio(self, d1, d2):
+        dictionary = {
             key: (d1[key] / d2[key]) * 100
             for key in d2
             if d1.get(key) and d2.get(key)
         }
-        return dict(sorted(cpi.items(), key=lambda item: item[1], reverse=True))
+        return dict(sorted(dictionary.items(), key=lambda item: item[1], reverse=True))
 
-    def save(self, user):
+    def update(self, user):
         user["clicks"] = self.clicks
         user["impressions"] = self.impressions
-        user["cpi"] = self.get_cpi(
-            user["clicks"], user["impressions"])
+        user["cpi"] = self.get_ratio(self.clicks, self.impressions)
 
         with open(user_file, "w") as f:
             json.dump(user, f, indent=4, separators=(',', ': '))
@@ -209,7 +207,6 @@ todo (user-user):
 
 class NearestNeighbors:
     def __init__(self):
-        self.query = USER
         self.user_file = user_file
         self.directory = 'Profiles/'
 
@@ -244,11 +241,10 @@ class NearestNeighbors:
                         user["cpi"], loaded_user["cpi"])
                     username = next(iter(loaded_user))
 
-                    data.append(
-                        (similarity, username, loaded_user["cpi"]))
+                    data.append((similarity, username, loaded_user["cpi"]))
 
         data = sorted(data, key=lambda x: x[0], reverse=True)
-        #print("\n", data)
+        print("\n", data)
         print(
             f"\nMy Dict: \n{USER}: {user['cpi']}\n \nMost Similar Dict ({data[0][0]}%): \n{data[0][1]}: {data[0][2]}\n")
 
