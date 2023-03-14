@@ -67,7 +67,7 @@ class AccountManager:
 class TupleCollector:
     """
     Takes integers: '1' and '2'.
-    Returns a list, which contains tuples: pref_hist.
+    Returns a list, which contains tuples: tuple_list.
     """
 
     def __init__(self):
@@ -86,19 +86,19 @@ class TupleCollector:
         return (a, b)
 
     def collect_preferences(self):
-        pref_hist = []
+        tuple_list = []
         a = random.choice(self.options)
 
         for _ in range(min(4, len(self.options) - 1)):
             b = random.choice([x for x in self.options if x != a])
-            
+
             a, b = self.preference(a, b)
-            pref_hist.append((a, b))
-            
+            tuple_list.append((a, b))
+
             self.options.remove(b)
 
         self.options.remove(a)
-        return pref_hist
+        return tuple_list
 
     @property
     def collect(self):
@@ -107,12 +107,12 @@ class TupleCollector:
 
 class DataExtractor:
     """
-    Takes a list: pref_hist.
+    Takes a list: tuple_list.
     Returns dictionaries: clicks, impressions.
     """
 
-    def __init__(self):
-        self.pref_hist = pref_hist
+    def __init__(self, tuple_list):
+        self.pref_hist = tuple_list
 
     def extract_data(self):
         clicks = {}
@@ -128,6 +128,7 @@ class DataExtractor:
     @property
     def extract(self):
         return self.extract_data()
+
 
 class DataManager:
     """
@@ -171,9 +172,9 @@ class ToolBox:
     """
 
     @staticmethod
-    def proceed_or_retry():
+    def proceed():
         print("Do you want to proceed or retry?")
-        return int(input("Enter 1 to Proceed or 2 to Retry: ")) == 2
+        return int(input("Enter 1 to Proceed or 2 to Retry: ")) == 1
 
     @staticmethod
     def similarity(n1, n2):
@@ -267,11 +268,10 @@ if __name__ == '__main__':
 
     NearestNeighbors().run()
 
-    pref_hist = TupleCollector().collect
-    clicks, impressions = DataExtractor().extract
-    DataManager(clicks, impressions)
-
-    while retry := ToolBox().proceed_or_retry():
-        pref_hist = TupleCollector().collect
-        clicks, impressions = DataExtractor().extract
+    while True:
+        tuples = TupleCollector().collect
+        clicks, impressions = DataExtractor(tuples).extract
         DataManager(clicks, impressions)
+
+        if ToolBox().proceed():
+            break
