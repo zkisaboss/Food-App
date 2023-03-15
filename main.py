@@ -97,25 +97,23 @@ class DataCollector:
         print(f"Do you prefer: {a} or {b}?")
         return (a, b) if int(input("Enter 1 for the first option or 2 for the second: ")) == 1 else (b, a)
 
-    @staticmethod
-    def store(c, i, a, b):
-        c[a] = c.get(a, 0) + 1
-        i[a] = i.get(a, 0) + 1
-        i[b] = i.get(b, 0) + 1
+    def store(self, a, b):
+        self.clicks[a] = self.clicks.get(a, 0) + 1
+        self.impressions[a] = self.impressions.get(a, 0) + 1
+        self.impressions[b] = self.impressions.get(b, 0) + 1
 
     def collect_preferences(self):
         a = random.choice(self.options)
-        for _ in range(min(4, len(self.options) - 1)):
+        for _ in range(5):
             b = random.choice([x for x in self.options if x != a])
             a, b = self.arrange(a, b)
-            self.store(self.clicks, self.impressions, a, b)
+            self.store(a, b)
             self.options.remove(b)
 
         self.options.remove(a)
 
     def __iter__(self):
         return iter((self.clicks, self.impressions))
-
 
 
 class DataManager:
@@ -138,11 +136,9 @@ class DataManager:
 
     @staticmethod
     def calculate_cpi(d1, d2):
-        d3 = {
-            key: (d1[key] / d2[key]) * 100
-            for key in d2
-            if d1.get(key) and d2.get(key)
-        }
+        d3 = {}
+        for key in d1:
+            d3[key] = d1[key] / d2[key] * 100
         return dict(sorted(d3.items(), key=lambda item: item[1], reverse=True))
 
     def update(self, user):
@@ -167,10 +163,7 @@ class ToolBox:
     @staticmethod
     def similarity(n1, n2):
         score = 1 - abs(n1 - n2) / (n1 + n2)
-        percent = round(score * 100, 2)
-        fraction = f"({int(score * (n1 + n2))}/{n1 + n2})."
-        print(f"The similarity of {n1} and {n2} is {percent}% {fraction}")
-        return percent
+        return round(score * 100, 2)
 
     @staticmethod
     def number_to_percent(d):
