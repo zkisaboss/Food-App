@@ -1,6 +1,7 @@
 {
     "zach": "1234",
     "clicks": {
+        "sushi": 4,
         "grilled salmon": 3,
         "hamburger": 2,
         "steak": 2,
@@ -8,18 +9,21 @@
     },
     "impressions": {
         "hamburger": 4,
-        "noodles": 3,
+        "noodles": 4,
+        "sushi": 4,
         "grilled salmon": 3,
         "steak": 2,
+        "chicken": 2,
+        "tacos": 2,
         "barbecue ribs": 1,
-        "chicken": 1,
-        "tacos": 1,
-        "pizza": 1
+        "pizza": 1,
+        "rice": 1
     },
     "cpi": {
+        "sushi": 100.0,
         "grilled salmon": 100.0,
         "steak": 100.0,
         "hamburger": 50.0,
-        "noodles": 33.33333333333333
+        "noodles": 25.0
     }
 }

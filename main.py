@@ -82,12 +82,15 @@ class DataCollector:
     """
 
     def __init__(self):
+        self.clicks = {}
+        self.impressions = {}
         self.options = [
             "pizza", "chicken", "rice", "noodles", "tandoori chicken",
             "spaghetti", "sushi", "steak", "hamburger", "tacos",
             "barbecue ribs", "dumplings", "soup", "waffles", "pulled pork",
             "grilled salmon", "calamari",
         ]
+        self.collect_preferences()
 
     @staticmethod
     def arrange(a, b):
@@ -101,22 +104,18 @@ class DataCollector:
         i[b] = i.get(b, 0) + 1
 
     def collect_preferences(self):
-        clicks = {}
-        impressions = {}
-
         a = random.choice(self.options)
         for _ in range(min(4, len(self.options) - 1)):
             b = random.choice([x for x in self.options if x != a])
             a, b = self.arrange(a, b)
-            self.store(clicks, impressions, a, b)
+            self.store(self.clicks, self.impressions, a, b)
             self.options.remove(b)
 
         self.options.remove(a)
-        return clicks, impressions
 
-    @property
-    def collect(self):
-        return self.collect_preferences()
+    def __iter__(self):
+        return iter((self.clicks, self.impressions))
+
 
 
 class DataManager:
@@ -251,7 +250,7 @@ if __name__ == '__main__':
     NNearestNeighbors(3).get
 
     while True:
-        clicks, impressions = DataCollector().collect
+        clicks, impressions = DataCollector()
         DataManager(clicks, impressions)
 
         if ToolBox().proceed():
