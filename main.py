@@ -140,39 +140,64 @@ class DataManager:
 
 
 class NNearestNeighbors:
-    def __init__(self, n=5):
-        self.user_file = user_file
+    def __init__(self, n=False):
+        self.my_file = user_file
         self.directory = 'Profiles/'
         self.n = n
 
     @staticmethod
     def compare(d1, d2):
         shared_keys = d1.keys() & d2.keys()
-        num_keys = len(shared_keys)
 
-        if num_keys == 0:
+        if not shared_keys:
             return 0.00
 
-        total_similarity = sum(abs(d1[key] - d2[key]) for key in shared_keys)
-        return round(total_similarity / num_keys, 2)
+        similarity = sum(abs(d1[key] - d2[key]) for key in shared_keys)
+        return round(similarity / len(shared_keys), 2)
+
+    @staticmethod
+    def recommend_item(dct):
+        rand_val = random.random()
+        total = 0
+        for k, v in dct.items():
+            total += v
+            if rand_val <= total:
+                return k
+        raise AssertionError('unreachable')
+
+    @staticmethod
+    def number_to_percent(d):
+        return {
+            key: d[key] / sum(d.values()) * 100
+            for key in d
+        }
+
+    def k_val(self):
+        return int((len(os.listdir(self.directory)))**0.5)
 
     @property
     def get(self):
         data = []
+        files = os.listdir(self.directory)
+        seen_files = set()
 
-        for file in os.listdir(self.directory):
-            if self.user_file == f"Profiles/{file}":
-                continue
+        k_val = self.n or self.k_val()
 
-            with open(os.path.join(self.directory, file), 'r') as f:
-                loaded_user = json.load(f)
+        for _ in range(k_val):
+            json_file = random.choice(files)
+            while json_file == f"{USER}.json" or json_file in seen_files:
+                json_file = random.choice(files)
 
-                if loaded_user["cpi"]:
-                    difference = self.compare(user["cpi"], loaded_user["cpi"])
-                    username = next(iter(loaded_user))
-                    data.append((difference, username, loaded_user["cpi"]))
+            with open(os.path.join(self.directory, json_file), 'r') as f:
+                their_dict = json.load(f)["cpi"]
+                if not their_dict:
+                    continue
 
-        data = sorted(data, key=lambda x: x[0])[:self.n]
+                diff = self.compare(user["cpi"], their_dict)
+                data.append((diff, json_file[:-5], their_dict))
+                seen_files.add(json_file)
+
+        data = sorted(data, key=lambda x: x[0])
         for element in data:
             print(f"{element} \n")
 
@@ -189,13 +214,12 @@ https://miro.medium.com/v2/resize:fit:1400/format:webp/1*J7bZ-K-6RwmwlYUqoXFOOQ@
 One solution is a hybrid-based approach, e.g., user-user and item-item collaborative filtering.
 
 Todo (user-user):
-1. Identify users with the most similar "interactions profile" (nearest neighbors or 'NN').
+1. Identify N users with the most similar "interactions profile" (nearest neighbors or 'NN').
     i) Iterate through the NN's profile and append items not found in the current user profile to a list (new suggestions)
     ii) Iterate through the following NN's profile and append items not found in the current user profile to the list (new suggestions).
     iii) Repeat step ii until the list (new suggestions) contains five or more items.
 
 2. Suggest items that are the most popular among these neighbors (and new to our user).
-3. Brainstorm ways to avoid availability bias.
 """
 
 
@@ -214,13 +238,6 @@ class ToolBox:
         score = 1 - abs(n1 - n2) / (n1 + n2)
         return round(score * 100, 2)
 
-    @staticmethod
-    def number_to_percent(d):
-        return {
-            key: d[key] / sum(d.values()) * 100
-            for key in d
-        }
-
 
 if __name__ == '__main__':
     USER = AccountManager().manage
@@ -229,7 +246,7 @@ if __name__ == '__main__':
     with open(user_file, "r") as f:
         user = json.load(f)
 
-    NNearestNeighbors(3).get
+    NNearestNeighbors().get
 
     while True:
         clicks, impressions = DataCollector()
