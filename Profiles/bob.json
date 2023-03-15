@@ -1,40 +1,43 @@
 {
     "bob": "123",
     "clicks": {
-        "hamburger": 5,
+        "steak": 8,
+        "hamburger": 6,
         "spaghetti": 5,
+        "sushi": 4,
         "tandoori chicken": 3,
         "noodles": 3,
-        "steak": 3,
         "chicken": 2,
         "calamari": 2,
-        "sushi": 1
+        "grilled salmon": 1
     },
     "impressions": {
+        "steak": 10,
         "spaghetti": 7,
-        "hamburger": 5,
+        "hamburger": 6,
+        "sushi": 6,
         "chicken": 5,
         "noodles": 5,
-        "tandoori chicken": 4,
+        "tandoori chicken": 5,
         "calamari": 4,
-        "steak": 4,
         "tacos": 3,
         "soup": 3,
-        "sushi": 2,
-        "pizza": 2,
-        "waffles": 1,
-        "rice": 1,
-        "dumplings": 1,
-        "grilled salmon": 1
+        "pizza": 3,
+        "grilled salmon": 3,
+        "dumplings": 3,
+        "waffles": 2,
+        "rice": 2,
+        "barbecue ribs": 1
     },
     "cpi": {
         "hamburger": 100.0,
-        "tandoori chicken": 75.0,
-        "steak": 75.0,
-        "spaghetti": 71.42857142857143,
+        "steak": 80.0,
+        "spaghetti": 71.43,
+        "sushi": 66.67,
+        "tandoori chicken": 60.0,
         "noodles": 60.0,
         "calamari": 50.0,
-        "sushi": 50.0,
-        "chicken": 40.0
+        "chicken": 40.0,
+        "grilled salmon": 33.33
     }
 }

@@ -3,17 +3,6 @@ import os
 import random
 
 
-"""
-The program is designed to create a food recommendation system based on user preferences, clicks, and impressions.
-The user can create an account or log in to an existing one.
-A list of food options is provided to the user, and they must choose their preferences through a series of binary comparisons.
-The program then creates a list of tuples containing the food options chosen by the user.
-The preferences are then analyzed, and a dictionary of clicks, impressions, and click-through rates (CPI) is generated.
-The user's account is updated with this data, which is stored in a JSON file.
-The ToolBox class provides helpful functionality to be used throughout the program, such as a similarity score and a method to proceed or retry.
-"""
-
-
 class AccountManager:
     """
     Takes string inputs: username and password.
@@ -150,51 +139,6 @@ class DataManager:
             json.dump(user, f, indent=4, separators=(',', ': '))
 
 
-class ToolBox:
-    """
-    Provides useful functionality to be used throughout the program.
-    """
-
-    @staticmethod
-    def proceed():
-        print("Do you want to proceed or retry?")
-        return int(input("Enter 1 to Proceed or 2 to Retry: ")) == 1
-
-    @staticmethod
-    def similarity(n1, n2):
-        score = 1 - abs(n1 - n2) / (n1 + n2)
-        return round(score * 100, 2)
-
-    @staticmethod
-    def number_to_percent(d):
-        return {
-            key: d[key] / sum(d.values()) * 100
-            for key in d
-        }
-
-
-"""
-Additional Resources:
-https://towardsdatascience.com/introduction-to-recommender-systems-6c66cf15ada
-
-https://miro.medium.com/v2/resize:fit:1400/format:webp/1*ReuY4yOoqKMatHNJupcM5A@2x.png
-https://miro.medium.com/v2/resize:fit:1400/format:webp/1*J7bZ-K-6RwmwlYUqoXFOOQ@2x.png
-
-- Avoid a "rich-get-richer" effect for popular items 
-- Avoid getting users stuck into an "information confinement area."
-One solution is a hybrid-based approach, e.g., user-user and item-item collaborative filtering.
-
-Todo (user-user):
-1. Identify users with the most similar "interactions profile" (nearest neighbors or 'NN').
-    i) Iterate through the NN's profile and append items not found in the current user profile to a list (new suggestions)
-    ii) Iterate through the following NN's profile and append items not found in the current user profile to the list (new suggestions).
-    iii) Repeat step ii until the list (new suggestions) contains five or more items.
-
-2. Suggest items that are the most popular among these neighbors (and new to our user).
-3. Brainstorm ways to avoid availability bias.
-"""
-
-
 class NNearestNeighbors:
     def __init__(self, n=5):
         self.user_file = user_file
@@ -231,6 +175,51 @@ class NNearestNeighbors:
         data = sorted(data, key=lambda x: x[0])[:self.n]
         for element in data:
             print(f"{element} \n")
+
+
+"""
+Additional Resources:
+https://towardsdatascience.com/introduction-to-recommender-systems-6c66cf15ada
+
+https://miro.medium.com/v2/resize:fit:1400/format:webp/1*ReuY4yOoqKMatHNJupcM5A@2x.png
+https://miro.medium.com/v2/resize:fit:1400/format:webp/1*J7bZ-K-6RwmwlYUqoXFOOQ@2x.png
+
+- Avoid a "rich-get-richer" effect for popular items 
+- Avoid getting users stuck into an "information confinement area."
+One solution is a hybrid-based approach, e.g., user-user and item-item collaborative filtering.
+
+Todo (user-user):
+1. Identify users with the most similar "interactions profile" (nearest neighbors or 'NN').
+    i) Iterate through the NN's profile and append items not found in the current user profile to a list (new suggestions)
+    ii) Iterate through the following NN's profile and append items not found in the current user profile to the list (new suggestions).
+    iii) Repeat step ii until the list (new suggestions) contains five or more items.
+
+2. Suggest items that are the most popular among these neighbors (and new to our user).
+3. Brainstorm ways to avoid availability bias.
+"""
+
+
+class ToolBox:
+    """
+    Provides useful functionality to be used throughout the program.
+    """
+
+    @staticmethod
+    def proceed():
+        print("Do you want to proceed or retry?")
+        return int(input("Enter 1 to Proceed or 2 to Retry: ")) == 1
+
+    @staticmethod
+    def similarity(n1, n2):
+        score = 1 - abs(n1 - n2) / (n1 + n2)
+        return round(score * 100, 2)
+
+    @staticmethod
+    def number_to_percent(d):
+        return {
+            key: d[key] / sum(d.values()) * 100
+            for key in d
+        }
 
 
 if __name__ == '__main__':
