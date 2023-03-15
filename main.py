@@ -3,6 +3,17 @@ import os
 import random
 
 
+"""
+The program is designed to create a food recommendation system based on user preferences, clicks, and impressions.
+The user can create an account or log in to an existing one.
+A list of food options is provided to the user, and they must choose their preferences through a series of binary comparisons.
+The program then creates a list of tuples containing the food options chosen by the user.
+The preferences are then analyzed, and a dictionary of clicks, impressions, and click-through rates (CPI) is generated.
+The user's account is updated with this data, which is stored in a JSON file.
+The ToolBox class provides helpful functionality to be used throughout the program, such as a similarity score and a method to proceed or retry.
+"""
+
+
 class AccountManager:
     """
     Takes string inputs: username and password.
@@ -64,10 +75,10 @@ class AccountManager:
         return self.interaction()
 
 
-class TupleCollector:
+class DataCollector:
     """
     Takes integers: '1' and '2'.
-    Returns a list, which contains tuples: tuple_list.
+    Returns dictionaries: clicks, impressions.
     """
 
     def __init__(self):
@@ -79,55 +90,33 @@ class TupleCollector:
         ]
 
     @staticmethod
-    def preference(a, b):
+    def arrange(a, b):
         print(f"Do you prefer: {a} or {b}?")
-        if int(input("Enter 1 for the first option or 2 for the second: ")) == 2:
-            a, b = b, a
-        return (a, b)
+        return (a, b) if int(input("Enter 1 for the first option or 2 for the second: ")) == 1 else (b, a)
+
+    @staticmethod
+    def store(c, i, a, b):
+        c[a] = c.get(a, 0) + 1
+        i[a] = i.get(a, 0) + 1
+        i[b] = i.get(b, 0) + 1
 
     def collect_preferences(self):
-        tuple_list = []
-        a = random.choice(self.options)
+        clicks = {}
+        impressions = {}
 
+        a = random.choice(self.options)
         for _ in range(min(4, len(self.options) - 1)):
             b = random.choice([x for x in self.options if x != a])
-
-            a, b = self.preference(a, b)
-            tuple_list.append((a, b))
-
+            a, b = self.arrange(a, b)
+            self.store(clicks, impressions, a, b)
             self.options.remove(b)
 
         self.options.remove(a)
-        return tuple_list
+        return clicks, impressions
 
     @property
     def collect(self):
         return self.collect_preferences()
-
-
-class DataExtractor:
-    """
-    Takes a list: tuple_list.
-    Returns dictionaries: clicks, impressions.
-    """
-
-    def __init__(self, tuple_list):
-        self.pref_hist = tuple_list
-
-    def extract_data(self):
-        clicks = {}
-        impressions = {}
-
-        for key1, key2 in self.pref_hist:
-            clicks[key1] = clicks.get(key1, 0) + 1
-            impressions[key1] = impressions.get(key1, 0) + 1
-            impressions[key2] = impressions.get(key2, 0) + 1
-
-        return clicks, impressions
-
-    @property
-    def extract(self):
-        return self.extract_data()
 
 
 class DataManager:
@@ -149,7 +138,7 @@ class DataManager:
         return dict(sorted(d2.items(), key=lambda item: item[1], reverse=True))
 
     @staticmethod
-    def get_ratio(d1, d2):
+    def calculate_cpi(d1, d2):
         d3 = {
             key: (d1[key] / d2[key]) * 100
             for key in d2
@@ -160,7 +149,7 @@ class DataManager:
     def update(self, user):
         user["clicks"] = self.clicks
         user["impressions"] = self.impressions
-        user["cpi"] = self.get_ratio(self.clicks, self.impressions)
+        user["cpi"] = self.calculate_cpi(self.clicks, self.impressions)
 
         with open(user_file, "w") as f:
             json.dump(user, f, indent=4, separators=(',', ': '))
@@ -214,31 +203,25 @@ Todo (user-user):
 """
 
 
-class NearestNeighbors:
-    def __init__(self):
+class NNearestNeighbors:
+    def __init__(self, n=5):
         self.user_file = user_file
         self.directory = 'Profiles/'
+        self.n = n
 
     @staticmethod
-    def similarity(n1, n2):
-        score = 1 - abs(n1 - n2) / (n1 + n2)
-        return round(score * 100, 2)
-
-    def compare(self, d1, d2):  # sourcery skip: assign-if-exp, reintroduce-else
-        total_similarity = 0
-        num_keys = 0
-
-        for key, val in d1.items():
-            if key in d2:
-                total_similarity += self.similarity(val, d2[key])
-                num_keys += 1
+    def compare(d1, d2):
+        shared_keys = d1.keys() & d2.keys()
+        num_keys = len(shared_keys)
 
         if num_keys == 0:
             return 0.00
 
+        total_similarity = sum(abs(d1[key] - d2[key]) for key in shared_keys)
         return round(total_similarity / num_keys, 2)
 
-    def run(self):
+    @property
+    def get(self):
         data = []
 
         for file in os.listdir(self.directory):
@@ -249,14 +232,13 @@ class NearestNeighbors:
                 loaded_user = json.load(f)
 
                 if loaded_user["cpi"]:
-                    similarity = self.compare(user["cpi"], loaded_user["cpi"])
+                    difference = self.compare(user["cpi"], loaded_user["cpi"])
                     username = next(iter(loaded_user))
-                    data.append((similarity, username, loaded_user["cpi"]))
+                    data.append((difference, username, loaded_user["cpi"]))
 
-        data = sorted(data, key=lambda x: x[0], reverse=True)
-        print("\n", data)
-        print(
-            f"\nMy Dict: \n{USER}: {user['cpi']}\n \nMost Similar Dict ({data[0][0]}%): \n{data[0][1]}: {data[0][2]}\n")
+        data = sorted(data, key=lambda x: x[0])[:self.n]
+        for element in data:
+            print(f"{element} \n")
 
 
 if __name__ == '__main__':
@@ -266,11 +248,10 @@ if __name__ == '__main__':
     with open(user_file, "r") as f:
         user = json.load(f)
 
-    NearestNeighbors().run()
+    NNearestNeighbors(3).get
 
     while True:
-        tuples = TupleCollector().collect
-        clicks, impressions = DataExtractor(tuples).extract
+        clicks, impressions = DataCollector().collect
         DataManager(clicks, impressions)
 
         if ToolBox().proceed():
