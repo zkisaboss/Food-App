@@ -93,7 +93,7 @@ class DataCollector:
 
     def collect_preferences(self):
         a = random.choice(self.options)
-        for _ in range(5):
+        for _ in range(total_decisions):
             b = random.choice([x for x in self.options if x != a])
             a, b = self.arrange(a, b)
             self.store(a, b)
@@ -140,6 +140,11 @@ class DataManager:
 
 
 class NNearestNeighbors:
+    """
+    Takes positive integers: n
+    Returns a list, which contains tuples: data
+    """
+
     def __init__(self, n=False):
         self.my_file = user_file
         self.directory = 'Profiles/'
@@ -155,35 +160,24 @@ class NNearestNeighbors:
         similarity = sum(abs(d1[key] - d2[key]) for key in shared_keys)
         return round(similarity / len(shared_keys), 2)
 
-    @staticmethod
-    def recommend_item(dct):
-        rand_val = random.random()
-        total = 0
-        for k, v in dct.items():
-            total += v
-            if rand_val <= total:
-                return k
-        raise AssertionError('unreachable')
-
-    @staticmethod
-    def number_to_percent(d):
-        return {
-            key: d[key] / sum(d.values()) * 100
-            for key in d
-        }
-
     def k_val(self):
-        return int((len(os.listdir(self.directory)))**0.5)
+        return round(len(os.listdir(self.directory)) ** (2/3))
 
     @property
     def get(self):
         data = []
         files = os.listdir(self.directory)
         seen_files = set()
+        k_v = self.k_val()
 
-        k_val = self.n or self.k_val()
+        if isinstance(self.n, int) and self.n <= len(files):
+            ss = self.n
+        else:
+            ss = k_v
+            print(
+                "\nError: not enough files in directory\n\nReturning Default K_Val Items:\n")
 
-        for _ in range(k_val):
+        for _ in range(max(k_v, ss)):
             json_file = random.choice(files)
             while json_file == f"{USER}.json" or json_file in seen_files:
                 json_file = random.choice(files)
@@ -198,8 +192,56 @@ class NNearestNeighbors:
                 seen_files.add(json_file)
 
         data = sorted(data, key=lambda x: x[0])
-        for element in data:
+        for element in data[:ss]:
             print(f"{element} \n")
+
+        return data[:ss]
+
+
+class RecommendationHandler:
+    """
+    Takes...
+    Returns...
+
+    This function should:
+     1) Combine NN:1 with current user's dict
+     2) Based on probability (val / total vals), recommend items.
+     3) Avoid repeated suggestions.
+    """
+
+    def __init__(self):
+        self.dict_list = [item[-1]
+                          for item in NN_List if isinstance(item[-1], dict)]
+        self.total_decisions = total_decisions
+
+    @staticmethod
+    def merge(d1, d2):
+        for key, value in d1.items():
+            d2[key] = d2.get(key, 0) + value
+
+        return dict(sorted(d2.items(), key=lambda item: item[1], reverse=True))
+
+    @staticmethod
+    def suggested_item(dct):
+        return random.choice([k for k in dct for _ in range(int(dct[k]))])
+
+    @property
+    def handle(self):
+        recommendations = []
+        seen_items = set()
+
+        for x in self.dict_list:
+            merged_dct = self.merge(user["cpi"], x)
+            suggested_items = [self.suggested_item(
+                merged_dct) for item in merged_dct if item not in seen_items][:self.total_decisions]
+            seen_items.update(suggested_items)
+            recommendations.extend(suggested_items)
+
+            if len(recommendations) >= self.total_decisions:
+                break
+
+        recommendations = recommendations[:self.total_decisions]
+        print(recommendations)
 
 
 """
@@ -238,6 +280,17 @@ class ToolBox:
         score = 1 - abs(n1 - n2) / (n1 + n2)
         return round(score * 100, 2)
 
+    @staticmethod
+    def number_to_percent(d):
+        return {
+            key: d[key] / sum(d.values()) * 100
+            for key in d
+        }
+
+    @staticmethod
+    def filter_dict_list(list):
+        return [item for item in list if isinstance(item, dict)]
+
 
 if __name__ == '__main__':
     USER = AccountManager().manage
@@ -246,7 +299,11 @@ if __name__ == '__main__':
     with open(user_file, "r") as f:
         user = json.load(f)
 
-    NNearestNeighbors().get
+    NN_List = NNearestNeighbors(1).get
+    total_decisions = 5
+
+    # Create a class for handling NN List and producing recommendations.
+    RecommendationHandler().handle
 
     while True:
         clicks, impressions = DataCollector()
