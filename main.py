@@ -148,7 +148,7 @@ class NNearestNeighbors:
     def __init__(self, n=False):
         self.my_file = user_file
         self.directory = 'Profiles/'
-        self.n = n
+        self.n = n or self.k_val()
 
     @staticmethod
     def compare(d1, d2):
@@ -168,16 +168,13 @@ class NNearestNeighbors:
         data = []
         files = os.listdir(self.directory)
         seen_files = set()
-        k_v = self.k_val()
 
-        if isinstance(self.n, int) and self.n <= len(files):
-            ss = self.n
+        if self.n > self.k_val() and self.n >= len(files):
+            sample_size = self.k_val()
         else:
-            ss = k_v
-            print(
-                "\nError: not enough files in directory\n\nReturning Default K_Val Items:\n")
+            sample_size = max(self.n, self.k_val())
 
-        for _ in range(max(k_v, ss)):
+        for _ in range(sample_size):
             json_file = random.choice(files)
             while json_file == f"{USER}.json" or json_file in seen_files:
                 json_file = random.choice(files)
@@ -187,15 +184,16 @@ class NNearestNeighbors:
                 if not their_dict:
                     continue
 
+                seen_files.add(json_file)
                 diff = self.compare(user["cpi"], their_dict)
                 data.append((diff, json_file[:-5], their_dict))
-                seen_files.add(json_file)
 
         data = sorted(data, key=lambda x: x[0])
-        for element in data[:ss]:
+
+        for element in data[:self.n]:
             print(f"{element} \n")
 
-        return data[:ss]
+        return data[:self.n]
 
 
 class RecommendationHandler:
@@ -299,7 +297,7 @@ if __name__ == '__main__':
     with open(user_file, "r") as f:
         user = json.load(f)
 
-    NN_List = NNearestNeighbors(1).get
+    NN_List = NNearestNeighbors(2).get
     total_decisions = 5
 
     # Create a class for handling NN List and producing recommendations.
