@@ -224,21 +224,7 @@ class RecommendationHandler:
                 seen.add(item)
                 recommendations.append(item)
 
-        print(recommendations[:self.elements])
         return recommendations[:self.elements]
-
-
-"""
-Additional Resources:
-https://towardsdatascience.com/introduction-to-recommender-systems-6c66cf15ada
-
-https://miro.medium.com/v2/resize:fit:1400/format:webp/1*ReuY4yOoqKMatHNJupcM5A@2x.png
-https://miro.medium.com/v2/resize:fit:1400/format:webp/1*J7bZ-K-6RwmwlYUqoXFOOQ@2x.png
-
-- Avoid a "rich-get-richer" effect for popular items 
-- Avoid getting users stuck into an "information confinement area."
-One solution is a hybrid-based approach, e.g., user-user and item-item collaborative filtering.
-"""
 
 
 class ToolBox:
@@ -286,3 +272,15 @@ if __name__ == '__main__':
 
         if ToolBox().proceed():
             break
+
+"""
+Additional Resources:
+https://towardsdatascience.com/introduction-to-recommender-systems-6c66cf15ada
+
+https://miro.medium.com/v2/resize:fit:1400/format:webp/1*ReuY4yOoqKMatHNJupcM5A@2x.png
+https://miro.medium.com/v2/resize:fit:1400/format:webp/1*J7bZ-K-6RwmwlYUqoXFOOQ@2x.png
+
+- Avoid a "rich-get-richer" effect for popular items 
+- Avoid getting users stuck into an "information confinement area."
+One solution is a hybrid-based approach, e.g., user-user and item-item collaborative filtering.
+"""
