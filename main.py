@@ -73,12 +73,7 @@ class DataCollector:
     def __init__(self):
         self.clicks = {}
         self.impressions = {}
-        self.options = [
-            "pizza", "chicken", "rice", "noodles", "tandoori chicken",
-            "spaghetti", "sushi", "steak", "hamburger", "tacos",
-            "barbecue ribs", "dumplings", "soup", "waffles", "pulled pork",
-            "grilled salmon", "calamari",
-        ]
+        self.options = recommendations
         self.collect_preferences()
 
     @staticmethod
@@ -201,7 +196,7 @@ class RecommendationHandler:
 
     def __init__(self):
         self.dict_list = [item[-1] for item in NN_List]
-        self.total_decisions = total_decisions
+        self.elements = total_decisions + 1
 
     @staticmethod
     def merge(d1, d2):
@@ -222,14 +217,15 @@ class RecommendationHandler:
         for dict in self.dict_list:
             merged = self.merge(dict, user["cpi"])
 
-        while len(recommendations) < self.total_decisions:
+        while len(recommendations) < self.elements:
             item = self.suggested_item(merged)
 
             if item not in seen:
                 seen.add(item)
                 recommendations.append(item)
 
-        print(recommendations[:self.total_decisions])
+        print(recommendations[:self.elements])
+        return recommendations[:self.elements]
 
 
 """
@@ -282,7 +278,7 @@ if __name__ == '__main__':
     NN_List = NNearestNeighbors().get
     total_decisions = 5
 
-    RecommendationHandler().handle
+    recommendations = RecommendationHandler().handle
 
     while True:
         clicks, impressions = DataCollector()

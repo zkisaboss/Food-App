@@ -1,29 +1,31 @@
 {
     "zach": "1234",
     "clicks": {
-        "sushi": 4,
-        "grilled salmon": 3,
+        "sushi": 5,
+        "grilled salmon": 5,
+        "steak": 3,
         "hamburger": 2,
-        "steak": 2,
-        "noodles": 1
+        "noodles": 1,
+        "tacos": 1
     },
     "impressions": {
+        "sushi": 7,
+        "grilled salmon": 5,
         "hamburger": 4,
         "noodles": 4,
-        "sushi": 4,
-        "grilled salmon": 3,
-        "steak": 2,
+        "steak": 4,
+        "tacos": 4,
         "chicken": 2,
-        "tacos": 2,
+        "pizza": 2,
         "barbecue ribs": 1,
-        "pizza": 1,
         "rice": 1
     },
     "cpi": {
-        "sushi": 100.0,
         "grilled salmon": 100.0,
-        "steak": 100.0,
+        "steak": 75.0,
+        "sushi": 71.42857142857143,
         "hamburger": 50.0,
-        "noodles": 25.0
+        "noodles": 25.0,
+        "tacos": 25.0
     }
 }
