@@ -100,7 +100,7 @@ class DataCollector:
         return iter((self.clicks, self.impressions))
 
 
-class DataManager:
+class DataHandler:
     """
     Takes dictionaries: clicks, impressions.
     Updates the user's JSON file.
@@ -134,10 +134,10 @@ class DataManager:
             json.dump(user, f, indent=4, separators=(',', ': '))
 
 
-class NNearestNeighbors:
+class NearestNeighbors:
     """
     Takes positive integers: n
-    Returns a list, which contains tuples: (sim_%, 'username', {dict})
+    Returns a list, which contains tuples: data
     """
 
     def __init__(self, n=False):
@@ -190,8 +190,8 @@ class NNearestNeighbors:
 
 class RecommendationHandler:
     """
-    Takes list of tuples: [(sim, 'user', {dict}), (sim, 'user', {dict})...]
-    Returns list of strings: ['food1', 'food2', 'food3]
+    Takes list of tuples: NN_List
+    Returns list of strings: recommendations
     """
 
     def __init__(self):
@@ -261,14 +261,14 @@ if __name__ == '__main__':
     with open(user_file, "r") as f:
         user = json.load(f)
 
-    NN_List = NNearestNeighbors().get
+    NN_List = NearestNeighbors().get
     total_decisions = 5
 
     recommendations = RecommendationHandler().handle
 
     while True:
         clicks, impressions = DataCollector()
-        DataManager(clicks, impressions)
+        DataHandler(clicks, impressions)
 
         if ToolBox().proceed():
             break
