@@ -1,12 +1,12 @@
 {
     "123": "abc",
     "clicks": {
-        "barbecue ribs": 7,
+        "barbecue ribs": 8,
         "grilled salmon": 4,
+        "waffles": 4,
         "pulled pork": 3,
         "sushi": 2,
-        "tandoori chicken": 1,
-        "waffles": 1,
+        "tandoori chicken": 2,
         "calamari": 1,
         "hamburger": 1,
         "tacos": 1,
@@ -15,15 +15,15 @@
         "steak": 1
     },
     "impressions": {
-        "barbecue ribs": 7,
+        "barbecue ribs": 9,
+        "waffles": 7,
+        "soup": 5,
+        "tandoori chicken": 5,
         "pulled pork": 4,
-        "soup": 4,
-        "waffles": 4,
         "grilled salmon": 4,
-        "tandoori chicken": 3,
-        "calamari": 3,
+        "calamari": 4,
+        "chicken": 4,
         "sushi": 3,
-        "chicken": 3,
         "dumplings": 3,
         "tacos": 2,
         "rice": 2,
@@ -33,17 +33,17 @@
         "pizza": 1
     },
     "cpi": {
-        "barbecue ribs": 100.0,
         "grilled salmon": 100.0,
+        "barbecue ribs": 88.88888888888889,
         "pulled pork": 75.0,
         "sushi": 66.66666666666666,
+        "waffles": 57.14285714285714,
+        "hamburger": 50.0,
         "tacos": 50.0,
         "steak": 50.0,
-        "hamburger": 50.0,
-        "tandoori chicken": 33.33333333333333,
-        "calamari": 33.33333333333333,
-        "chicken": 33.33333333333333,
+        "tandoori chicken": 40.0,
         "dumplings": 33.33333333333333,
-        "waffles": 25.0
+        "calamari": 25.0,
+        "chicken": 25.0
     }
 }

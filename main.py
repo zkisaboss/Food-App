@@ -2,25 +2,24 @@ import json
 import os
 import random
 
+
 """
 To-Do:
 - Find and Comment Bugs
 - Fix Bugs
 
-- RecommendationHandler Sorts Items By Likelihood of Suggestion Based On Item-Item Current session adjustments.
-- Edit NearestNeighbors To Combine Only The X Nearest, when we combine all samples program becomes highly unsalable.
-
 Planned Qualities:
-- Avoids Information Confinement Area by Periodically Introducing New Items.
-- Adjusts for Changing Trends.
 - Adjusts Suggestions Based on Current Session Preferences.
     - Items that are frequently purchased together.
     - Items that are categorically similar.
-    - Items that you’ve picked in the past.
+    - Items that you've picked in the past.
+
+- Avoids Information Confinement Area by Periodically Introduce New Items.
+- Adjusts for Changing Trends.
 """
-# GOOD
 
 
+# GOOD: Final Version
 class AccountManager:
     """
     Takes string inputs: username and password.
@@ -82,6 +81,7 @@ class AccountManager:
         return self.interaction()
 
 
+# Planned Feature: Session-Based Recommendations
 class DataCollector:
     """
     Takes integers: '1' and '2'.
@@ -91,8 +91,8 @@ class DataCollector:
     def __init__(self):
         self.clicks = {}
         self.impressions = {}
-        self.options = recommendations
-        self.collect_preferences()
+        self.list = recommendations
+        self.collect_data()
 
     @staticmethod
     def arrange(a, b):
@@ -104,22 +104,18 @@ class DataCollector:
         self.impressions[a] = self.impressions.get(a, 0) + 1
         self.impressions[b] = self.impressions.get(b, 0) + 1
 
-    def collect_preferences(self):
-        a = random.choice(self.options)
-        for _ in range(total_decisions):
-            b = random.choice([x for x in self.options if x != a])
+    def collect_data(self):
+        a = self.list[0]
+        for i in range(total_decisions):
+            b = self.list[i + 1]
             a, b = self.arrange(a, b)
             self.store(a, b)
-            self.options.remove(b)
-
-        self.options.remove(a)
 
     def __iter__(self):
         return iter((self.clicks, self.impressions))
 
-# GOOD
 
-
+# GOOD: Semi-Final Version
 class DataHandler:
     """
     Takes dictionaries: clicks, impressions.
@@ -139,7 +135,7 @@ class DataHandler:
         return dict(sorted(d2.items(), key=lambda item: item[1], reverse=True))
 
     @staticmethod
-    def calculate_cpi(d1, d2):
+    def update_cpi(d1, d2):
         d3 = {}
         for key in d1:
             d3[key] = d1[key] / d2[key] * 100
@@ -148,12 +144,13 @@ class DataHandler:
     def update(self, user):
         user["clicks"] = self.clicks
         user["impressions"] = self.impressions
-        user["cpi"] = self.calculate_cpi(self.clicks, self.impressions)
+        user["cpi"] = self.update_cpi(self.clicks, self.impressions)
 
         with open(user_file, "w") as f:
             json.dump(user, f, indent=4, separators=(',', ': '))
 
 
+# NEEDS WORK
 class NearestNeighbors:
     """
     Takes positive integers: n
@@ -188,7 +185,7 @@ class NearestNeighbors:
             sample_size = self.k_val()
         else:
             sample_size = max(self.n, self.k_val())
-        # Start: Error Handling
+
         for _ in range(sample_size):
             json_file = random.choice(files)
             while json_file == f"{USER}.json" or json_file in seen_files:
@@ -198,7 +195,7 @@ class NearestNeighbors:
                 dct = json.load(f)["cpi"]
                 if not dct:
                     continue
-        # End
+
                 seen_files.add(json_file)
                 diff = self.compare(user["cpi"], dct)
                 data.append((diff, json_file[:-5], dct))
@@ -206,6 +203,7 @@ class NearestNeighbors:
         return sorted(data, key=lambda x: x[0])
 
 
+# NEEDS WORK
 class RecommendationHandler:
     """
     Takes list of tuples: nearest
@@ -213,8 +211,9 @@ class RecommendationHandler:
     """
 
     def __init__(self):
-        self.dict_list = [item[-1] for item in nearest]
+        # self.dict_list = [item[-1] for item in nearest]
         self.elements = total_decisions + 1
+        self.nearest = self.merge(nearest[0][-1], user["cpi"])
 
     @staticmethod
     def merge(d1, d2):
@@ -231,17 +230,15 @@ class RecommendationHandler:
     def handle(self):
         recommendations = []
         seen = set()
-        merged = self.merge(self.dict_list[0], user["cpi"])
 
         while len(recommendations) < self.elements:
-            item = self.suggested_item(merged)
+            item = self.suggested_item(self.nearest)
 
             if item not in seen:
                 seen.add(item)
                 recommendations.append(item)
 
-        recommendations.sort(key=lambda x: merged[x], reverse=True)
-        return recommendations
+        return sorted(recommendations, key=lambda x: self.nearest[x], reverse=True)
 
 
 class ToolBox:
@@ -288,8 +285,6 @@ if __name__ == '__main__':
 
         if ToolBox().proceed():
             break
-
-
 
 
 """
