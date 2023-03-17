@@ -2,7 +2,19 @@ import json
 import os
 import random
 
+"""
+To-Do:
+- Find and Comment Bugs
+- Fix Bugs
+- RecommendationHandler Sorts Items By Likelihood of Suggestion Based On Item-Item Current session adjustments.
+- Edit NearestNeighbors To Combine Only The X Nearest, when we combine all samples program becomes highly unsalable.
 
+Planned Qualities:
+- Avoids Information Confinement Area by Periodically Introducing New Items.
+    - We can do this in several ways: Randomly, Item-Item% Sug
+- Adjusts for Changing Trends.
+"""
+# GOOD
 class AccountManager:
     """
     Takes string inputs: username and password.
@@ -99,7 +111,7 @@ class DataCollector:
     def __iter__(self):
         return iter((self.clicks, self.impressions))
 
-
+# GOOD
 class DataHandler:
     """
     Takes dictionaries: clicks, impressions.
@@ -164,7 +176,7 @@ class NearestNeighbors:
         files = os.listdir(self.directory)
         seen_files = set()
 
-        if self.n > self.k_val() and self.n >= len(files):
+        if self.n >= len(files):
             sample_size = self.k_val()
         else:
             sample_size = max(self.n, self.k_val())
@@ -190,12 +202,12 @@ class NearestNeighbors:
 
 class RecommendationHandler:
     """
-    Takes list of tuples: NN_List
+    Takes list of tuples: nearest
     Returns list of strings: recommendations
     """
 
     def __init__(self):
-        self.dict_list = [item[-1] for item in NN_List]
+        self.dict_list = [item[-1] for item in nearest]
         self.elements = total_decisions + 1
 
     @staticmethod
@@ -261,12 +273,11 @@ if __name__ == '__main__':
     with open(user_file, "r") as f:
         user = json.load(f)
 
-    NN_List = NearestNeighbors().get
     total_decisions = 5
 
-    recommendations = RecommendationHandler().handle
-
     while True:
+        nearest = NearestNeighbors().get
+        recommendations = RecommendationHandler().handle
         clicks, impressions = DataCollector()
         DataHandler(clicks, impressions)
 
