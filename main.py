@@ -196,7 +196,7 @@ class NNearestNeighbors:
         return data[:self.n]
 
 
-class RecommendationHandler:
+class RecommendationHandler: # Bug: duplicate suggestions
     """
     Takes...
     Returns...
@@ -208,8 +208,7 @@ class RecommendationHandler:
     """
 
     def __init__(self):
-        self.dict_list = [item[-1]
-                          for item in NN_List if isinstance(item[-1], dict)]
+        self.dict_list = [item[-1] for item in NN_List]
         self.total_decisions = total_decisions
 
     @staticmethod
@@ -226,20 +225,19 @@ class RecommendationHandler:
     @property
     def handle(self):
         recommendations = []
-        seen_items = set()
+        seen = set()
 
-        for x in self.dict_list:
-            merged_dct = self.merge(user["cpi"], x)
-            suggested_items = [self.suggested_item(
-                merged_dct) for item in merged_dct if item not in seen_items][:self.total_decisions]
-            seen_items.update(suggested_items)
-            recommendations.extend(suggested_items)
+        for dict in self.dict_list:
+            merged = self.merge(dict, user["cpi"])
 
-            if len(recommendations) >= self.total_decisions:
-                break
+        while len(recommendations) < self.total_decisions:
+            item = self.suggested_item(merged)
 
-        recommendations = recommendations[:self.total_decisions]
-        print(recommendations)
+            if item not in seen:
+                seen.add(item)
+                recommendations.append(item)
+
+        print(recommendations[:self.total_decisions])
 
 
 """
