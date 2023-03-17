@@ -142,7 +142,7 @@ class DataManager:
 class NNearestNeighbors:
     """
     Takes positive integers: n
-    Returns a list, which contains tuples: data
+    Returns a list, which contains tuples: (sim_%, 'username', {dict})
     """
 
     def __init__(self, n=False):
@@ -190,21 +190,13 @@ class NNearestNeighbors:
 
         data = sorted(data, key=lambda x: x[0])
 
-        for element in data[:self.n]:
-            print(f"{element} \n")
-
         return data[:self.n]
 
 
-class RecommendationHandler: # Bug: duplicate suggestions
+class RecommendationHandler:
     """
-    Takes...
-    Returns...
-
-    This function should:
-     1) Combine NN:1 with current user's dict
-     2) Based on probability (val / total vals), recommend items.
-     3) Avoid repeated suggestions.
+    Takes list of tuples: [(sim, 'user', {dict}), (sim, 'user', {dict})...]
+    Returns list of strings: ['food1', 'food2', 'food3]
     """
 
     def __init__(self):
@@ -250,14 +242,6 @@ https://miro.medium.com/v2/resize:fit:1400/format:webp/1*J7bZ-K-6RwmwlYUqoXFOOQ@
 - Avoid a "rich-get-richer" effect for popular items 
 - Avoid getting users stuck into an "information confinement area."
 One solution is a hybrid-based approach, e.g., user-user and item-item collaborative filtering.
-
-Todo (user-user):
-1. Identify N users with the most similar "interactions profile" (nearest neighbors or 'NN').
-    i) Iterate through the NN's profile and append items not found in the current user profile to a list (new suggestions)
-    ii) Iterate through the following NN's profile and append items not found in the current user profile to the list (new suggestions).
-    iii) Repeat step ii until the list (new suggestions) contains five or more items.
-
-2. Suggest items that are the most popular among these neighbors (and new to our user).
 """
 
 
@@ -285,7 +269,7 @@ class ToolBox:
 
     @staticmethod
     def filter_dict_list(list):
-        return [item for item in list if isinstance(item, dict)]
+        return [i for i in list if isinstance(i, dict)]
 
 
 if __name__ == '__main__':
@@ -295,10 +279,9 @@ if __name__ == '__main__':
     with open(user_file, "r") as f:
         user = json.load(f)
 
-    NN_List = NNearestNeighbors(2).get
+    NN_List = NNearestNeighbors().get
     total_decisions = 5
 
-    # Create a class for handling NN List and producing recommendations.
     RecommendationHandler().handle
 
     while True:
