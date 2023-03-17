@@ -1,0 +1,21 @@
+{
+    "kernel_popcorn_sanders": "123",
+    "clicks": {
+        "steak": 3,
+        "tandoori chicken": 1,
+        "barbecue ribs": 1
+    },
+    "impressions": {
+        "steak": 3,
+        "tandoori chicken": 2,
+        "barbecue ribs": 2,
+        "noodles": 1,
+        "hamburger": 1,
+        "dumplings": 1
+    },
+    "cpi": {
+        "steak": 100.0,
+        "tandoori chicken": 50.0,
+        "barbecue ribs": 50.0
+    }
+}

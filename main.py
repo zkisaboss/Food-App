@@ -6,15 +6,21 @@ import random
 To-Do:
 - Find and Comment Bugs
 - Fix Bugs
+
 - RecommendationHandler Sorts Items By Likelihood of Suggestion Based On Item-Item Current session adjustments.
 - Edit NearestNeighbors To Combine Only The X Nearest, when we combine all samples program becomes highly unsalable.
 
 Planned Qualities:
 - Avoids Information Confinement Area by Periodically Introducing New Items.
-    - We can do this in several ways: Randomly, Item-Item% Sug
 - Adjusts for Changing Trends.
+- Adjusts Suggestions Based on Current Session Preferences.
+    - Items that are frequently purchased together.
+    - Items that are categorically similar.
+    - Items that you’ve picked in the past.
 """
 # GOOD
+
+
 class AccountManager:
     """
     Takes string inputs: username and password.
@@ -112,6 +118,8 @@ class DataCollector:
         return iter((self.clicks, self.impressions))
 
 # GOOD
+
+
 class DataHandler:
     """
     Takes dictionaries: clicks, impressions.
@@ -180,24 +188,22 @@ class NearestNeighbors:
             sample_size = self.k_val()
         else:
             sample_size = max(self.n, self.k_val())
-
+        # Start: Error Handling
         for _ in range(sample_size):
             json_file = random.choice(files)
             while json_file == f"{USER}.json" or json_file in seen_files:
                 json_file = random.choice(files)
 
             with open(os.path.join(self.directory, json_file), 'r') as f:
-                their_dict = json.load(f)["cpi"]
-                if not their_dict:
+                dct = json.load(f)["cpi"]
+                if not dct:
                     continue
-
+        # End
                 seen_files.add(json_file)
-                diff = self.compare(user["cpi"], their_dict)
-                data.append((diff, json_file[:-5], their_dict))
+                diff = self.compare(user["cpi"], dct)
+                data.append((diff, json_file[:-5], dct))
 
-        data = sorted(data, key=lambda x: x[0])
-
-        return data[:self.n]
+        return sorted(data, key=lambda x: x[0])
 
 
 class RecommendationHandler:
@@ -225,9 +231,7 @@ class RecommendationHandler:
     def handle(self):
         recommendations = []
         seen = set()
-
-        for dict in self.dict_list:
-            merged = self.merge(dict, user["cpi"])
+        merged = self.merge(self.dict_list[0], user["cpi"])
 
         while len(recommendations) < self.elements:
             item = self.suggested_item(merged)
@@ -236,7 +240,8 @@ class RecommendationHandler:
                 seen.add(item)
                 recommendations.append(item)
 
-        return recommendations[:self.elements]
+        recommendations.sort(key=lambda x: merged[x], reverse=True)
+        return recommendations
 
 
 class ToolBox:
@@ -283,6 +288,9 @@ if __name__ == '__main__':
 
         if ToolBox().proceed():
             break
+
+
+
 
 """
 Additional Resources:

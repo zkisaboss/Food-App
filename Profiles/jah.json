@@ -1,7 +1,7 @@
 {
     "jah": "123",
     "clicks": {
-        "barbecue ribs": 7,
+        "barbecue ribs": 11,
         "steak": 7,
         "sushi": 5,
         "pulled pork": 5,
@@ -13,39 +13,41 @@
         "tacos": 1,
         "pizza": 1,
         "rice": 1,
-        "spaghetti": 1
+        "spaghetti": 1,
+        "chicken": 1
     },
     "impressions": {
-        "hamburger": 11,
-        "barbecue ribs": 8,
-        "steak": 8,
+        "hamburger": 12,
+        "barbecue ribs": 12,
+        "steak": 9,
         "pulled pork": 7,
+        "tandoori chicken": 7,
         "sushi": 6,
-        "tandoori chicken": 6,
         "calamari": 6,
         "tacos": 6,
         "waffles": 6,
         "rice": 5,
-        "spaghetti": 4,
+        "spaghetti": 5,
         "soup": 4,
+        "chicken": 4,
         "pizza": 3,
         "dumplings": 3,
-        "noodles": 3,
-        "chicken": 2
+        "noodles": 3
     },
     "cpi": {
         "dumplings": 100.0,
-        "barbecue ribs": 87.5,
-        "steak": 87.5,
+        "barbecue ribs": 91.66666666666666,
         "sushi": 83.33333333333334,
+        "steak": 77.77777777777779,
         "pulled pork": 71.42857142857143,
         "waffles": 66.66666666666666,
-        "hamburger": 45.45454545454545,
-        "tandoori chicken": 33.33333333333333,
+        "hamburger": 41.66666666666667,
         "calamari": 33.33333333333333,
         "pizza": 33.33333333333333,
-        "spaghetti": 25.0,
+        "tandoori chicken": 28.57142857142857,
+        "chicken": 25.0,
         "rice": 20.0,
+        "spaghetti": 20.0,
         "tacos": 16.666666666666664
     }
 }
