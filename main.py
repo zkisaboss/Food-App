@@ -19,7 +19,7 @@ Planned Qualities:
 """
 
 
-# GOOD: Final Version
+# Final Version
 class AccountManager:
     """
     Takes string inputs: username and password.
@@ -81,7 +81,7 @@ class AccountManager:
         return self.interaction()
 
 
-# Planned Feature: Session-Based Recommendations
+# Planned: Session-Based Recommendations
 class DataCollector:
     """
     Takes integers: '1' and '2'.
@@ -115,7 +115,7 @@ class DataCollector:
         return iter((self.clicks, self.impressions))
 
 
-# GOOD: Final Version
+# Final Version
 class DataHandler:
     """
     Takes dictionaries: clicks, impressions.
@@ -150,7 +150,7 @@ class DataHandler:
             json.dump(user, f, indent=4, separators=(',', ': '))
 
 
-# GOOD: Final Version
+# Final Version
 class NearestNeighbors:
     """
     Takes Current User's File: f'{USER}.file'
@@ -199,7 +199,7 @@ class NearestNeighbors:
         return sorted(data, key=lambda x: x[0])
 
 
-# NEEDS WORK
+# Planned: Periodically Introduce New/Unique Items.
 class RecommendationHandler:
     """
     Takes list of tuples: nearest
