@@ -115,7 +115,7 @@ class DataCollector:
         return iter((self.clicks, self.impressions))
 
 
-# GOOD: Semi-Final Version
+# GOOD: Final Version
 class DataHandler:
     """
     Takes dictionaries: clicks, impressions.
@@ -146,7 +146,7 @@ class DataHandler:
         user["impressions"] = self.impressions
         user["cpi"] = self.update_cpi(self.clicks, self.impressions)
 
-        with open(user_file, "w") as f:
+        with open(my_json_file, "w") as f:
             json.dump(user, f, indent=4, separators=(',', ': '))
 
 
@@ -157,13 +157,13 @@ class NearestNeighbors:
     Returns a list, which contains tuples: data
     """
 
-    def __init__(self, n=False):
-        self.my_file = user_file
-        self.directory = 'Profiles/'
-        self.n = n or self.k_val()
+    def __init__(self):
+        self.seen_files = {f'{USER}.json'}
+        self.directory = os.listdir('Profiles/')
+        self.k_val = range(round(len(self.directory) ** (2 / 3)))
 
     @staticmethod
-    def compare(d1, d2):
+    def calculate_similarity(d1, d2):
         shared_keys = d1.keys() & d2.keys()
 
         if not shared_keys:
@@ -172,33 +172,30 @@ class NearestNeighbors:
         similarity = sum(abs(d1[key] - d2[key]) for key in shared_keys)
         return round(similarity / len(shared_keys), 2)
 
-    def k_val(self):
-        return round(len(os.listdir(self.directory)) ** (2/3))
+    def return_unseen_file(self):
+        while True:
+            _file = random.choice(self.directory)
+            if _file not in self.seen_files:
+                self.seen_files.add(_file)
+                break
+
+        with open(os.path.join('Profiles/', _file), 'r') as f:
+            dct = json.load(f)["cpi"]
+        return _file, dct
+
+    def return_nonempty_profile(self):
+        while not (profile := self.return_unseen_file())[1]:
+            continue
+        return profile
 
     @property
     def get(self):
         data = []
-        files = os.listdir(self.directory)
-        seen_files = set()
 
-        if self.n >= len(files):
-            sample_size = self.k_val()
-        else:
-            sample_size = max(self.n, self.k_val())
-
-        for _ in range(sample_size):
-            json_file = random.choice(files)
-            while json_file == f"{USER}.json" or json_file in seen_files:
-                json_file = random.choice(files)
-
-            with open(os.path.join(self.directory, json_file), 'r') as f:
-                dct = json.load(f)["cpi"]
-                if not dct:
-                    continue
-
-                seen_files.add(json_file)
-                diff = self.compare(user["cpi"], dct)
-                data.append((diff, json_file[:-5], dct))
+        for _ in self.k_val:
+            username, json_data = self.return_nonempty_file()
+            similarity = self.calculate_similarity(user["cpi"], json_data)
+            data.append((similarity, username, json_data))
 
         return sorted(data, key=lambda x: x[0])
 
@@ -227,7 +224,7 @@ class RecommendationHandler:
         return random.choice([k for k in dct for _ in range(int(dct[k]))])
 
     @property
-    def handle(self):
+    def get(self):
         recommendations = []
         seen = set()
 
@@ -241,6 +238,7 @@ class RecommendationHandler:
         return sorted(recommendations, key=lambda x: self.nearest[x], reverse=True)
 
 
+# GOOD
 class ToolBox:
     """
     Provides useful functionality to be used throughout the program.
@@ -271,15 +269,15 @@ class ToolBox:
 if __name__ == '__main__':
     USER = AccountManager().manage
 
-    user_file = f"Profiles/{USER}.json"
-    with open(user_file, "r") as f:
+    my_json_file = f"Profiles/{USER}.json"
+    with open(my_json_file, "r") as f:
         user = json.load(f)
 
     total_decisions = 5
 
     while True:
         nearest = NearestNeighbors().get
-        recommendations = RecommendationHandler().handle
+        recommendations = RecommendationHandler().get
         clicks, impressions = DataCollector()
         DataHandler(clicks, impressions)
 
