@@ -286,5 +286,5 @@ if __name__ == '__main__':
 
         if ToolBox().proceed():
             break
-    
+
     print("Loading Search Results...")
