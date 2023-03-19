@@ -146,14 +146,14 @@ class DataHandler:
         user["impressions"] = self.impressions
         user["cpi"] = self.update_cpi(self.clicks, self.impressions)
 
-        with open(my_json_file, "w") as f:
+        with open(my_json, "w") as f:
             json.dump(user, f, indent=4, separators=(',', ': '))
 
 
-# NEEDS WORK
+# GOOD: Final Version
 class NearestNeighbors:
     """
-    Takes positive integers: n
+    Takes Current User's File: f'{USER}.file'
     Returns a list, which contains tuples: data
     """
 
@@ -163,16 +163,15 @@ class NearestNeighbors:
         self.k_val = range(round(len(self.directory) ** (2 / 3)))
 
     @staticmethod
-    def calculate_similarity(d1, d2):
+    def calculate_difference(d1, d2):
         shared_keys = d1.keys() & d2.keys()
-
         if not shared_keys:
             return 0.00
 
-        similarity = sum(abs(d1[key] - d2[key]) for key in shared_keys)
-        return round(similarity / len(shared_keys), 2)
+        key_difference_sum = sum(abs(d1[key] - d2[key]) for key in shared_keys)
+        return round(key_difference_sum / len(shared_keys), 2)
 
-    def return_unseen_file(self):
+    def get_unseen_profile(self):
         while True:
             _file = random.choice(self.directory)
             if _file not in self.seen_files:
@@ -180,11 +179,11 @@ class NearestNeighbors:
                 break
 
         with open(os.path.join('Profiles/', _file), 'r') as f:
-            dct = json.load(f)["cpi"]
+            dct = dict(json.load(f)["cpi"])
         return _file, dct
 
-    def return_nonempty_profile(self):
-        while not (profile := self.return_unseen_file())[1]:
+    def get_nonempty_profile(self):
+        while not (profile := self.get_unseen_profile())[1]:
             continue
         return profile
 
@@ -193,8 +192,8 @@ class NearestNeighbors:
         data = []
 
         for _ in self.k_val:
-            username, json_data = self.return_nonempty_file()
-            similarity = self.calculate_similarity(user["cpi"], json_data)
+            username, json_data = self.get_nonempty_profile()
+            similarity = self.calculate_difference(user["cpi"], json_data)
             data.append((similarity, username, json_data))
 
         return sorted(data, key=lambda x: x[0])
@@ -208,7 +207,7 @@ class RecommendationHandler:
     """
 
     def __init__(self):
-        # self.dict_list = [item[-1] for item in nearest]
+        self.seen_recommendations = set()
         self.elements = total_decisions + 1
         self.nearest = self.merge(nearest[0][-1], user["cpi"])
 
@@ -226,14 +225,17 @@ class RecommendationHandler:
     @property
     def get(self):
         recommendations = []
-        seen = set()
 
-        while len(recommendations) < self.elements:
+        while True:
             item = self.suggested_item(self.nearest)
+            if item in self.seen_recommendations:
+                continue
 
-            if item not in seen:
-                seen.add(item)
-                recommendations.append(item)
+            self.seen_recommendations.add(item)
+            recommendations.append(item)
+
+            if len(recommendations) == self.elements:
+                break
 
         return sorted(recommendations, key=lambda x: self.nearest[x], reverse=True)
 
@@ -269,8 +271,8 @@ class ToolBox:
 if __name__ == '__main__':
     USER = AccountManager().manage
 
-    my_json_file = f"Profiles/{USER}.json"
-    with open(my_json_file, "r") as f:
+    my_json = f"Profiles/{USER}.json"
+    with open(my_json, "r") as f:
         user = json.load(f)
 
     total_decisions = 5
