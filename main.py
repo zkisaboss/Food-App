@@ -7,9 +7,10 @@ import random
 To-Do:
 - Find and Comment Bugs
 - Fix Bugs
+- Check for scalability
 
 Planned Qualities:
-- Adjusts Suggestions Based on Current Session Preferences.
+- Adjusts Suggestions Based on Current Session Interactions.
     - Items that are frequently purchased together.
     - Items that are categorically similar.
     - Items that you've picked in the past.
@@ -240,7 +241,7 @@ class RecommendationHandler:
         return sorted(recommendations, key=lambda x: self.nearest[x], reverse=True)
 
 
-# GOOD
+# Final Version
 class ToolBox:
     """
     Provides useful functionality to be used throughout the program.
@@ -285,16 +286,5 @@ if __name__ == '__main__':
 
         if ToolBox().proceed():
             break
-
-
-"""
-Additional Resources:
-https://towardsdatascience.com/introduction-to-recommender-systems-6c66cf15ada
-
-https://miro.medium.com/v2/resize:fit:1400/format:webp/1*ReuY4yOoqKMatHNJupcM5A@2x.png
-https://miro.medium.com/v2/resize:fit:1400/format:webp/1*J7bZ-K-6RwmwlYUqoXFOOQ@2x.png
-
-- Avoid a "rich-get-richer" effect for popular items 
-- Avoid getting users stuck into an "information confinement area."
-One solution is a hybrid-based approach, e.g., user-user and item-item collaborative filtering.
-"""
+    
+    print("Loading Search Results...")
