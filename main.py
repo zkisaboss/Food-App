@@ -5,22 +5,19 @@ import random
 
 """
 To-Do:
-- Find and Comment Bugs
-- Fix Bugs
 - Check for scalability
 
 Planned Qualities:
 - Adjusts Suggestions Based on Current Session Interactions.
-    - Items that are frequently purchased together.
-    - Items that are categorically similar.
-    - Items that you've picked in the past.
+    - Items that are frequently purchased together?
+    - Items that are categorically similar?
+    - Items that you've picked in the past?
 
 - Avoids Information Confinement Area by Periodically Introduce New Items.
 - Adjusts for Changing Trends.
 """
 
 
-# Final Version
 class AccountManager:
     """
     Takes string inputs: username and password.
@@ -116,7 +113,6 @@ class DataCollector:
         return iter((self.clicks, self.impressions))
 
 
-# Final Version
 class DataHandler:
     """
     Takes dictionaries: clicks, impressions.
@@ -136,7 +132,7 @@ class DataHandler:
         return dict(sorted(d2.items(), key=lambda item: item[1], reverse=True))
 
     @staticmethod
-    def update_cpi(d1, d2):
+    def modify_cpi(d1, d2):
         d3 = {}
         for key in d1:
             d3[key] = d1[key] / d2[key] * 100
@@ -145,17 +141,16 @@ class DataHandler:
     def update(self, user):
         user["clicks"] = self.clicks
         user["impressions"] = self.impressions
-        user["cpi"] = self.update_cpi(self.clicks, self.impressions)
+        user["cpi"] = self.modify_cpi(self.clicks, self.impressions)
 
         with open(my_json, "w") as f:
             json.dump(user, f, indent=4, separators=(',', ': '))
 
 
-# Final Version
 class NearestNeighbors:
     """
-    Takes Current User's File: f'{USER}.file'
-    Returns a list, which contains tuples: data
+    Takes Current User's File: f'{USER}.file'.
+    Returns a list, which contains tuples: data.
     """
 
     def __init__(self):
@@ -203,8 +198,8 @@ class NearestNeighbors:
 # Planned: Periodically Introduce New/Unique Items.
 class RecommendationHandler:
     """
-    Takes list of tuples: nearest
-    Returns list of strings: recommendations
+    Takes list of tuples: nearest.
+    Returns list of strings: recommendations.
     """
 
     def __init__(self):
@@ -241,7 +236,6 @@ class RecommendationHandler:
         return sorted(recommendations, key=lambda x: self.nearest[x], reverse=True)
 
 
-# Final Version
 class ToolBox:
     """
     Provides useful functionality to be used throughout the program.
