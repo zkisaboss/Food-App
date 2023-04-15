@@ -79,7 +79,6 @@ class AccountManager:
         return self.interaction()
 
 
-# Planned: Session-Based Recommendations
 class DataCollector:
     """
     Takes integers: '1' and '2'.
@@ -102,6 +101,7 @@ class DataCollector:
         self.impressions[a] = self.impressions.get(a, 0) + 1
         self.impressions[b] = self.impressions.get(b, 0) + 1
 
+    # Planned: Session-Based Recommendations
     def collect_data(self):
         a = self.list[0]
         for i in range(total_decisions):
@@ -126,16 +126,14 @@ class DataHandler:
 
     @staticmethod
     def merge(d1, d2):
-        for key, value in d1.items():
-            d2[key] = d2.get(key, 0) + value
+        for k, v in d1.items():
+            d2[k] = d2.get(k, 0) + v
 
         return dict(sorted(d2.items(), key=lambda item: item[1], reverse=True))
 
     @staticmethod
     def modify_cpi(d1, d2):
-        d3 = {}
-        for key in d1:
-            d3[key] = d1[key] / d2[key] * 100
+        d3 = {k: d1[k] / d2[k] * 100 for k in d1}
         return dict(sorted(d3.items(), key=lambda item: item[1], reverse=True))
 
     def update(self, user):
@@ -156,7 +154,7 @@ class NearestNeighbors:
     def __init__(self):
         self.seen_files = {f'{USER}.json'}
         self.directory = os.listdir('Profiles/')
-        self.k_val = range(round(len(self.directory) ** (2 / 3)))
+        self.num_neighbors = range(round(len(self.directory) ** (2 / 3)))
 
     @staticmethod
     def calculate_difference(d1, d2):
@@ -164,7 +162,7 @@ class NearestNeighbors:
         if not shared_keys:
             return 0.00
 
-        key_difference_sum = sum(abs(d1[key] - d2[key]) for key in shared_keys)
+        key_difference_sum = sum(abs(d1[k] - d2[k]) for k in shared_keys)
         return round(key_difference_sum / len(shared_keys), 2)
 
     def get_unseen_profile(self):
@@ -187,7 +185,7 @@ class NearestNeighbors:
     def get(self):
         data = []
 
-        for _ in self.k_val:
+        for _ in self.num_neighbors:
             username, json_data = self.get_nonempty_profile()
             similarity = self.calculate_difference(user["cpi"], json_data)
             data.append((similarity, username, json_data))
@@ -203,19 +201,20 @@ class RecommendationHandler:
     """
 
     def __init__(self):
-        self.seen_recommendations = set()
+        self.seen_items = set()
         self.elements = total_decisions + 1
-        self.nearest = self.merge(nearest[0][-1], user["cpi"])
+        self.nearest = self.merge(*[d[-1] for d in nearest[:3]])
 
     @staticmethod
-    def merge(d1, d2):
-        for key, value in d1.items():
-            d2[key] = d2.get(key, 0) + value
-
-        return dict(sorted(d2.items(), key=lambda item: item[1], reverse=True))
+    def merge(*dicts):
+        result = {}
+        for d in dicts:
+            for k, v in d.items():
+                result[k] = result.get(k, []) + [v]
+        return {k: sum(v)/len(v) for k, v in result.items()}
 
     @staticmethod
-    def suggested_item(dct):
+    def suggested_ele(dct):
         return random.choice([k for k in dct for _ in range(int(dct[k]))])
 
     @property
@@ -223,11 +222,11 @@ class RecommendationHandler:
         recommendations = []
 
         while True:
-            item = self.suggested_item(self.nearest)
-            if item in self.seen_recommendations:
+            item = self.suggested_ele(self.nearest)
+            if item in self.seen_items:
                 continue
 
-            self.seen_recommendations.add(item)
+            self.seen_items.add(item)
             recommendations.append(item)
 
             if len(recommendations) == self.elements:
@@ -236,31 +235,9 @@ class RecommendationHandler:
         return sorted(recommendations, key=lambda x: self.nearest[x], reverse=True)
 
 
-class ToolBox:
-    """
-    Provides useful functionality to be used throughout the program.
-    """
-
-    @staticmethod
-    def proceed():
-        print("Do you want to proceed or retry?")
-        return int(input("Enter 1 to Proceed or 2 to Retry: ")) == 1
-
-    @staticmethod
-    def similarity(n1, n2):
-        score = 1 - abs(n1 - n2) / (n1 + n2)
-        return round(score * 100, 2)
-
-    @staticmethod
-    def number_to_percent(d):
-        return {
-            key: d[key] / sum(d.values()) * 100
-            for key in d
-        }
-
-    @staticmethod
-    def filter_dict_list(list):
-        return [i for i in list if isinstance(i, dict)]
+def proceed():
+    print("Do you want to proceed or retry?")
+    return int(input("Enter 1 to Proceed or 2 to Retry: ")) == 1
 
 
 if __name__ == '__main__':
@@ -278,7 +255,7 @@ if __name__ == '__main__':
         clicks, impressions = DataCollector()
         DataHandler(clicks, impressions)
 
-        if ToolBox().proceed():
+        if proceed():
             break
 
     print("Loading Search Results...")
