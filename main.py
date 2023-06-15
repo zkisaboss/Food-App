@@ -13,7 +13,7 @@ Planned Qualities:
     - Items that are categorically similar?
     - Items that you've picked in the past?
 
-- Avoids Information Confinement Area by Periodically Introduce New Items.
+- Avoids Information Confinement Area by Periodically Introducing New Items.
 - Adjusts for Changing Trends.
 """
 
