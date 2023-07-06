@@ -88,7 +88,7 @@ class DataCollector:
     def __init__(self):
         self.clicks = {}
         self.impressions = {}
-        self.list = recommendations
+        self.recommendations = recommendations
         self.collect_data()
 
     @staticmethod
@@ -103,9 +103,10 @@ class DataCollector:
 
     # Planned: Session-Based Recommendations
     def collect_data(self):
-        a = self.list[0]
+        a = self.recommendations[0]
+        
         for i in range(total_decisions):
-            b = self.list[i + 1]
+            b = self.recommendations[i + 1]
             a, b = self.arrange(a, b)
             self.store(a, b)
 
