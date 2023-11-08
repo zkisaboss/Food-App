@@ -3,9 +3,9 @@ import os
 import random
 
 # Implement tensorflow recommendations instead of static methods
-foods = ["sushi", "grilled salmon", "steak", "tacos", "hamburger", "waffles", "noodles", "barbecue ribs", "pizza",
-         "calamari", "pulled pork", "chicken", "dumplings", "rice", "tandoori chicken", "soup", "example2"]
-
+nearby_foods = ["sushi", "grilled salmon", "steak", "tacos", "hamburger", "waffles", "noodles", "barbecue ribs",
+                "pizza", "calamari", "pulled pork", "chicken", "dumplings", "rice", "tandoori chicken", "soup",
+                "unseen"]
 
 class AccountManager:
     @staticmethod
@@ -22,9 +22,9 @@ class AccountManager:
 
         PASS = input("Enter a password: ")
         account = {USER: PASS,
-                   "clicks": {food: 0 for food in foods},
-                   "impressions": {food: 0 for food in foods},
-                   "cpi": {food: 0 for food in foods}}
+                   "clicks": {food: 0 for food in nearby_foods},
+                   "impressions": {food: 0 for food in nearby_foods},
+                   "cpi": {food: 0 for food in nearby_foods}}
 
         with open(f"Profiles/{USER}.json", "w") as fn:
             json.dump(account, fn, indent=4, separators=(',', ': '))
@@ -41,14 +41,6 @@ class AccountManager:
             try:
                 with open(f"Profiles/{USER}.json", "r") as fn:
                     account = json.load(fn)
-
-                unique = account['impressions'].keys() ^ foods  # Checks for food items not in the user json file
-                for i in unique:
-                    if i in foods:
-                        account['impressions'][i] = 0
-
-                with open(f"Profiles/{USER}.json", "w") as fn:
-                    json.dump(account, fn, indent=4)
 
                 if account[USER] == PASS:
                     return USER
@@ -85,11 +77,11 @@ class DataCollector:
         self.collect_data()
 
     @staticmethod
-    def arrange(a, b):
+    def arrange(a: str, b: str) -> tuple:
         print(f"Do you prefer: {a} or {b}?")
         return (a, b) if int(input("Enter 1 for the first option or 2 for the second: ")) == 1 else (b, a)
 
-    def store(self, a, b):
+    def store(self, a: str, b: str):
         self.clicks[a] = self.clicks.get(a, 0) + 1
         self.impressions[a] = self.impressions.get(a, 0) + 1
         self.impressions[b] = self.impressions.get(b, 0) + 1
@@ -107,25 +99,25 @@ class DataCollector:
 
 
 class DataHandler:
-    def __init__(self, c, i):
+    def __init__(self, c: dict, i: dict):
         self.clicks = self.merge(c, user["clicks"])
         self.impressions = self.merge(i, user["impressions"])
         self.update(user)
 
     @staticmethod
-    def merge(d1, d2):
+    def merge(d1: dict, d2: dict) -> dict:
         for k, v in d1.items():
             d2[k] = d2.get(k, 0) + v
 
         return dict(sorted(d2.items(), key=lambda item: item[1], reverse=True))
 
     @staticmethod
-    def modify_cpi(d1, d2):  # sourcery skip: assign-if-exp, dict-comprehension
+    def modify_cpi(d1: dict, d2: dict) -> dict:
         d3 = {}
         for k in d1:
-            if k in d2 and d2[k] != 0:
-                d3[k] = (d1[k] / d2[k] * 100)
-            else:
+            try:
+                d3[k] = d1[k] / d2[k] * 100
+            except (KeyError, ZeroDivisionError):
                 d3[k] = 0
 
         return dict(sorted(d3.items(), key=lambda item: item[1], reverse=True))
@@ -134,6 +126,13 @@ class DataHandler:
         user["clicks"] = self.clicks
         user["impressions"] = self.impressions
         user["cpi"] = self.modify_cpi(self.clicks, self.impressions)
+
+        unique = user['impressions'].keys() ^ nearby_foods  # Checks for food items not in the user json file
+        for i in unique:
+            if i in nearby_foods:
+                user['clicks'][i] = 0
+                user['impressions'][i] = 0
+                user['cpi'][i] = 0
 
         with open(my_json, "w") as fn:
             json.dump(user, fn, indent=4, separators=(',', ': '))
@@ -146,7 +145,7 @@ class NearestNeighbors:
         self.num_neighbors = range(round(len(self.directory) ** (2 / 3)))
 
     @staticmethod
-    def calculate_difference(d1, d2):
+    def calculate_difference(d1: dict, d2: dict) -> float:
         shared_keys = d1.keys() & d2.keys()
         if not shared_keys:
             return 0.00
@@ -155,7 +154,7 @@ class NearestNeighbors:
         return round(key_difference_sum / len(shared_keys), 2)
 
     # sep into two different functions for simplicity
-    def get_unseen_profile(self):
+    def get_unseen_profile(self) -> tuple:
         while True:
             _file = random.choice(self.directory)
             if _file not in self.seen_files:
@@ -168,7 +167,7 @@ class NearestNeighbors:
         return _file, dct
 
     @property
-    def get(self):
+    def get(self) -> list:
         data = []
 
         for _ in self.num_neighbors:
@@ -186,7 +185,7 @@ class RecommendationHandler:
         self.nearest = self.merge(*[d[-1] for d in nearest[:3]])
 
     @staticmethod
-    def merge(*dicts):
+    def merge(*dicts) -> dict:
         result = {}
         for d in dicts:
             for k, v in d.items():
@@ -194,20 +193,16 @@ class RecommendationHandler:
         return {k: sum(v) / len(v) for k, v in result.items()}
 
     @staticmethod
-    def suggested_ele(dct, probability=50):
+    def suggested_ele(dct: dict, probability=0.1) -> str:
         items = [k for k in dct for _ in range(int(dct[k]))]
-        unseen_items = [k for k in dct if dct[k] == 0]
-
-        # Calculate the probability for new items
-        unseen_probability = probability / len(items) if items else 0
-
-        # Append unseen items with dynamically increasing probabilities
-        items += [k for k in unseen_items for _ in range(int(unseen_probability * len(items)))]
+        unseen = [k for k in dct if dct[k] == 0]
+        unseen *= int(probability * (len(unseen + items)))
+        items += unseen
 
         return random.choice(items)
 
     @property
-    def get(self):
+    def get(self) -> list:
         recommendations = []
 
         while True:
@@ -224,7 +219,7 @@ class RecommendationHandler:
         return sorted(recommendations, key=lambda x: self.nearest[x], reverse=True)
 
 
-def proceed():
+def proceed() -> int:
     print("Do you want to proceed or retry?")
     return int(input("Enter 1 to Proceed or 2 to Retry: ")) == 1
 
