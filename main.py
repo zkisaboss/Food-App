@@ -2,10 +2,12 @@ import json
 import os
 import random
 
-# Implement tensorflow recommendations instead of static methods
+# Implement TensorFlow recommendations instead of static methods.
+# Modify recommendations so only nearby_foods are recommended
 nearby_foods = ["sushi", "grilled salmon", "steak", "tacos", "hamburger", "waffles", "noodles", "barbecue ribs",
                 "pizza", "calamari", "pulled pork", "chicken", "dumplings", "rice", "tandoori chicken", "soup",
                 "unseen"]
+
 
 class AccountManager:
     @staticmethod
@@ -52,7 +54,7 @@ class AccountManager:
         print("You've exceeded the number of login attempts.")
         raise SystemExit
 
-    def interaction(self):
+    def interaction(self) -> str:
         while True:
             user_input = input(
                 "Enter '1' to create a new account or '2' to login to an existing one: ")
@@ -65,7 +67,7 @@ class AccountManager:
                 print("Invalid choice. Please enter '1' or '2'.")
 
     @property
-    def manage(self):
+    def manage(self) -> str:
         return self.interaction()
 
 
@@ -127,7 +129,7 @@ class DataHandler:
         user["impressions"] = self.impressions
         user["cpi"] = self.modify_cpi(self.clicks, self.impressions)
 
-        unique = user['impressions'].keys() ^ nearby_foods  # Checks for food items not in the user json file
+        unique = set(user['impressions'].keys()) ^ set(nearby_foods)  # unseen or not nearby foods
         for i in unique:
             if i in nearby_foods:
                 user['clicks'][i] = 0
