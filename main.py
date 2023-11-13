@@ -210,16 +210,12 @@ class RecommendationHandler:
     def get(self) -> list:
         recommendations = []
 
-        while True:
+        while len(recommendations) < self.elements:
             item = self.suggested_ele(self.nearest)
-            if item in self.seen_items:
-                continue
 
-            self.seen_items.add(item)
-            recommendations.append(item)
-
-            if len(recommendations) == self.elements:
-                break
+            if item not in self.seen_items:
+                self.seen_items.add(item)
+                recommendations.append(item)
 
         return sorted(recommendations, key=lambda x: self.nearest[x], reverse=True)
 
