@@ -43,6 +43,16 @@ class AccountManager:
             try:
                 with open(f"Profiles/{USER}.json", "r") as fn:
                     account = json.load(fn)
+                
+                unique = set(account['impressions'].keys()) ^ set(nearby_foods)  # unseen or not nearby foods
+                for i in unique:
+                    if i in nearby_foods:
+                        account['clicks'][i] = 0
+                        account['impressions'][i] = 0
+                        account['cpi'][i] = 0
+
+                with open(f"Profiles/{USER}.json", "w") as fn:
+                    json.dump(account, fn, indent=4, separators=(',', ': '))
 
                 if account[USER] == PASS:
                     return USER
@@ -128,13 +138,6 @@ class DataHandler:
         user["clicks"] = self.clicks
         user["impressions"] = self.impressions
         user["cpi"] = self.modify_cpi(self.clicks, self.impressions)
-
-        unique = set(user['impressions'].keys()) ^ set(nearby_foods)  # unseen or not nearby foods
-        for i in unique:
-            if i in nearby_foods:
-                user['clicks'][i] = 0
-                user['impressions'][i] = 0
-                user['cpi'][i] = 0
 
         with open(my_json, "w") as fn:
             json.dump(user, fn, indent=4, separators=(',', ': '))
