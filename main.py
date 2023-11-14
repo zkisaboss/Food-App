@@ -22,10 +22,10 @@ class AccountManager:
             raise SystemExit
 
         PASS = input("Enter a password: ")
-        init = {food: 0 for food in nearby_foods}
-        account = {USER: PASS, "clicks": init, "impressions": init, "cpi": init}
 
         with open(f"Profiles/{USER}.json", "w") as fn:
+            init = {food: 0 for food in nearby_foods}
+            account = {USER: PASS, "clicks": init, "impressions": init, "cpi": init}
             json.dump(account, fn, indent=4, separators=(',', ': '))
 
         print("Account created successfully!")
