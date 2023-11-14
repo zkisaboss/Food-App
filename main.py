@@ -41,12 +41,11 @@ class AccountManager:
                 with open(f"Profiles/{USER}.json", "r") as fn:
                     account = json.load(fn)
 
-                unique = set(account['impressions'].keys()) ^ set(nearby_foods)  # unseen or not nearby foods
-                for i in unique:
-                    if i in nearby_foods:
-                        account['clicks'][i] = 0
-                        account['impressions'][i] = 0
-                        account['cpi'][i] = 0
+                unseen = set(nearby_foods) - set(account['impressions'])
+                for i in unseen:
+                    account['clicks'][i] = 0
+                    account['impressions'][i] = 0
+                    account['cpi'][i] = 0
 
                 with open(f"Profiles/{USER}.json", "w") as fn:
                     json.dump(account, fn, indent=4, separators=(',', ': '))
