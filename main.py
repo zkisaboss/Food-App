@@ -3,10 +3,9 @@ import os
 import random
 
 # Implement TensorFlow recommendations instead of static methods.
-# Modify recommendations so only nearby_foods are recommended
 nearby_foods = ["sushi", "grilled salmon", "steak", "tacos", "hamburger", "waffles", "noodles", "barbecue ribs",
                 "pizza", "calamari", "pulled pork", "chicken", "dumplings", "rice", "tandoori chicken", "soup",
-                "unseen"]
+                "burritos"]
 
 
 class AccountManager:
@@ -23,10 +22,8 @@ class AccountManager:
             raise SystemExit
 
         PASS = input("Enter a password: ")
-        account = {USER: PASS,
-                   "clicks": {food: 0 for food in nearby_foods},
-                   "impressions": {food: 0 for food in nearby_foods},
-                   "cpi": {food: 0 for food in nearby_foods}}
+        init = {food: 0 for food in nearby_foods}
+        account = {USER: PASS, "clicks": init, "impressions": init, "cpi": init}
 
         with open(f"Profiles/{USER}.json", "w") as fn:
             json.dump(account, fn, indent=4, separators=(',', ': '))
@@ -43,7 +40,7 @@ class AccountManager:
             try:
                 with open(f"Profiles/{USER}.json", "r") as fn:
                     account = json.load(fn)
-                
+
                 unique = set(account['impressions'].keys()) ^ set(nearby_foods)  # unseen or not nearby foods
                 for i in unique:
                     if i in nearby_foods:
@@ -101,7 +98,7 @@ class DataCollector:
     def collect_data(self):
         a = self.recommendations[0]
 
-        for i in range(total_decisions):
+        for i in range(5):
             b = self.recommendations[i + 1]
             a, b = self.arrange(a, b)
             self.store(a, b)
@@ -145,9 +142,9 @@ class DataHandler:
 
 class NearestNeighbors:
     def __init__(self):
-        self.seen_files = {f'{USER}.json'}
+        self.seen_files = set(f'{USER}.json')
         self.directory = os.listdir('Profiles/')
-        self.num_neighbors = range(round(len(self.directory) ** (2 / 3)))
+        self.num_neighbors = range(round(len(self.directory) ** 0.6666666666666666))
 
     @staticmethod
     def calculate_difference(d1: dict, d2: dict) -> float:
@@ -156,20 +153,17 @@ class NearestNeighbors:
             return 0.00
 
         key_difference_sum = sum(abs(d1[k] - d2[k]) for k in shared_keys)
-        return round(key_difference_sum / len(shared_keys), 2)
+        return key_difference_sum / len(shared_keys)
 
-    # sep into two different functions for simplicity
     def get_unseen_profile(self) -> tuple:
-        while True:
-            _file = random.choice(self.directory)
-            if _file not in self.seen_files:
-                self.seen_files.add(_file)
-                break
+        unseen_files = set(self.directory) - self.seen_files
+        random_file = random.choice(list(unseen_files))
+        self.seen_files.add(random_file)
 
-        with open(os.path.join('Profiles/', _file), 'r') as fn:
-            dct = dict(json.load(fn)["cpi"])
+        with open(os.path.join('Profiles/', random_file), 'r') as file:
+            json_data = dict(json.load(file)["cpi"])
 
-        return _file, dct
+        return random_file, json_data
 
     @property
     def get(self) -> list:
@@ -186,7 +180,6 @@ class NearestNeighbors:
 class RecommendationHandler:
     def __init__(self):
         self.seen_items = set()
-        self.elements = total_decisions + 1
         self.nearest = self.merge(*[d[-1] for d in nearest[:3]])
 
     @staticmethod
@@ -198,24 +191,31 @@ class RecommendationHandler:
         return {k: sum(v) / len(v) for k, v in result.items()}
 
     @staticmethod
-    def suggested_ele(dct: dict, probability=0.1) -> str:
-        items = [k for k in dct for _ in range(int(dct[k]))]
-        unseen = [k for k in dct if dct[k] == 0]
-        unseen *= int(probability * (len(unseen + items)))
-        items += unseen
+    def suggested_ele(dct: dict) -> str:
+        unseen_keys = [k for k in dct if dct[k] == 0]
+        probability = 0.1 if unseen_keys else 0.0
 
-        return random.choice(items)
+        total = sum(dct.values())
+        weights = [(v / total) * 0.9 for v in dct.values() if v != 0]
+        weights += [probability / len(unseen_keys) for _ in unseen_keys]
+
+        return random.choices(list(dct.keys()), weights)[0]
+
 
     @property
     def get(self) -> list:
         recommendations = []
 
-        while len(recommendations) < self.elements:
+        while True:
             item = self.suggested_ele(self.nearest)
+            if item in self.seen_items:
+                continue
 
-            if item not in self.seen_items:
-                self.seen_items.add(item)
-                recommendations.append(item)
+            self.seen_items.add(item)
+            recommendations.append(item)
+
+            if len(recommendations) == 6:
+                break
 
         return sorted(recommendations, key=lambda x: self.nearest[x], reverse=True)
 
@@ -231,8 +231,6 @@ if __name__ == '__main__':
     my_json = f"Profiles/{USER}.json"
     with open(my_json, "r") as f:
         user = json.load(f)
-
-    total_decisions = 5
 
     while True:
         nearest = NearestNeighbors().get
