@@ -3,7 +3,7 @@ import os
 import random
 
 # Implement TensorFlow recommendations instead of static methods.
-nearby_foods = ["sushi", "grilled salmon", "steak", "tacos", "hamburger", "waffles", "noodles", "barbecue ribs",
+nearby_foods = ["sushi", "grilled salmon", "steak", "tacos", "hamburger", "waffles", "noodles",
                 "pizza", "calamari", "pulled pork", "chicken", "dumplings", "rice", "tandoori chicken", "soup",
                 "burritos"]
 
@@ -23,10 +23,10 @@ class AccountManager:
 
         PASS = input("Enter a password: ")
 
-        with open(f"Profiles/{USER}.json", "w") as fn:
+        with open(f"Profiles/{USER}.json", "w") as file:
             init = {food: 0 for food in nearby_foods}
             account = {USER: PASS, "clicks": init, "impressions": init, "cpi": init}
-            json.dump(account, fn, indent=4, separators=(',', ': '))
+            json.dump(account, file, indent=4, separators=(',', ': '))
 
         print("Account created successfully!")
         return USER
@@ -38,17 +38,16 @@ class AccountManager:
             PASS = input("Enter your password: ")
 
             try:
-                with open(f"Profiles/{USER}.json", "r") as fn:
-                    account = json.load(fn)
+                with open(f"Profiles/{USER}.json") as file:
+                    account = json.load(file)
 
-                unseen = set(nearby_foods) - set(account['impressions'])
-                for i in unseen:
-                    account['clicks'][i] = 0
-                    account['impressions'][i] = 0
-                    account['cpi'][i] = 0
-
-                with open(f"Profiles/{USER}.json", "w") as fn:
-                    json.dump(account, fn, indent=4, separators=(',', ': '))
+                with open(f"Profiles/{USER}.json", "w") as file:
+                    unseen = set(nearby_foods) - set(account['impressions'])
+                    for i in unseen:
+                        account['clicks'][i] = 0
+                        account['impressions'][i] = 0
+                        account['cpi'][i] = 0
+                    json.dump(account, file, indent=4, separators=(',', ': '))
 
                 if account[USER] == PASS:
                     return USER
@@ -78,10 +77,10 @@ class AccountManager:
 
 
 class DataCollector:
-    def __init__(self):
+    def __init__(self, rec):
         self.clicks = {}
         self.impressions = {}
-        self.recommendations = recommendations
+        self.recommendations = rec
         self.collect_data()
 
     @staticmethod
@@ -108,16 +107,16 @@ class DataCollector:
 
 class DataHandler:
     def __init__(self, c: dict, i: dict):
-        self.clicks = self.merge(c, user["clicks"])
-        self.impressions = self.merge(i, user["impressions"])
-        self.update(user)
+        self.clicks = self.merge(c, user_data["clicks"])
+        self.impressions = self.merge(i, user_data["impressions"])
+        self.update()
 
     @staticmethod
     def merge(d1: dict, d2: dict) -> dict:
         for k, v in d1.items():
             d2[k] = d2.get(k, 0) + v
 
-        return dict(sorted(d2.items(), key=lambda item: item[1], reverse=True))
+        return d2
 
     @staticmethod
     def modify_cpi(d1: dict, d2: dict) -> dict:
@@ -128,20 +127,21 @@ class DataHandler:
             except (KeyError, ZeroDivisionError):
                 d3[k] = 0
 
-        return dict(sorted(d3.items(), key=lambda item: item[1], reverse=True))
+        return d3
 
-    def update(self, user):
-        user["clicks"] = self.clicks
-        user["impressions"] = self.impressions
-        user["cpi"] = self.modify_cpi(self.clicks, self.impressions)
+    # Should user_data rely on global?
+    def update(self):
+        user_data["clicks"] = self.clicks
+        user_data["impressions"] = self.impressions
+        user_data["cpi"] = self.modify_cpi(self.clicks, self.impressions)
 
-        with open(my_json, "w") as fn:
-            json.dump(user, fn, indent=4, separators=(',', ': '))
+        with open(f"Profiles/{username}.json", "w") as file:
+            json.dump(user_data, file, indent=4, separators=(',', ': '))
 
 
 class NearestNeighbors:
-    def __init__(self):
-        self.seen_files = set(f'{USER}.json')
+    def __init__(self, name):
+        self.seen_files = set(f'{name}.json')
         self.directory = os.listdir('Profiles/')
         self.num_neighbors = range(round(len(self.directory) ** 0.6666666666666666))
 
@@ -159,7 +159,7 @@ class NearestNeighbors:
         random_file = random.choice(list(unseen_files))
         self.seen_files.add(random_file)
 
-        with open(os.path.join('Profiles/', random_file), 'r') as file:
+        with open(os.path.join('Profiles/', random_file)) as file:
             json_data = dict(json.load(file)["cpi"])
 
         return random_file, json_data
@@ -167,19 +167,19 @@ class NearestNeighbors:
     @property
     def get(self) -> list:
         data = []
-
         for _ in self.num_neighbors:
-            username, json_data = self.get_unseen_profile()
-            similarity = self.calculate_difference(user["cpi"], json_data)
-            data.append((similarity, username, json_data))
+            u, json_data = self.get_unseen_profile()
+            similarity = self.calculate_difference(user_data["cpi"], json_data)
+            data.append((similarity, u, json_data))
 
         return sorted(data, key=lambda x: x[0])
 
 
 class RecommendationHandler:
-    def __init__(self):
-        self.seen_items = set()
-        self.nearest = self.merge(*[d[-1] for d in nearest[:3]])
+    def __init__(self, nearest_neighbors):
+        self.seen = set()
+        self.nearest = self.merge(*[d[-1] for d in nearest_neighbors[:3]])
+        self.nearest = {k: v for k, v in self.nearest.items() if k in nearby_foods}
 
     @staticmethod
     def merge(*dicts) -> dict:
@@ -190,33 +190,39 @@ class RecommendationHandler:
         return {k: sum(v) / len(v) for k, v in result.items()}
 
     @staticmethod
-    def suggested_ele(dct: dict) -> str:
-        unseen_keys = [k for k in dct if dct[k] == 0]
-        probability = 0.1 if unseen_keys else 0.0
+    def suggested_ele(d1):
+        seen = []
+        unseen = []
+        weights = []
+        for k, v in d1.items():
+            if v:
+                seen.append(k)
+                weights.append(v)
+            else:
+                unseen.append(k)
+        keys = seen + unseen
 
-        total = sum(dct.values())
-        weights = [(v / total) * 0.9 for v in dct.values() if v != 0]
-        weights += [probability / len(unseen_keys) for _ in unseen_keys]
-
-        return random.choices(list(dct.keys()), weights)[0]
-
+        if unseen:
+            length = len(unseen)
+            weights.extend([sum(weights) / length * 0.1111111111111111] * length)
+        return random.choices(keys, weights)[0]
 
     @property
     def get(self) -> list:
-        recommendations = []
+        r = []
 
         while True:
             item = self.suggested_ele(self.nearest)
-            if item in self.seen_items:
+            if item in self.seen:
                 continue
 
-            self.seen_items.add(item)
-            recommendations.append(item)
+            self.seen.add(item)
+            r.append(item)
 
-            if len(recommendations) == 6:
+            if len(r) == 6:
                 break
 
-        return sorted(recommendations, key=lambda x: self.nearest[x], reverse=True)
+        return sorted(r, key=lambda x: self.nearest[x], reverse=True)
 
 
 def proceed() -> int:
@@ -225,16 +231,16 @@ def proceed() -> int:
 
 
 if __name__ == '__main__':
-    USER = AccountManager().manage
+    username = AccountManager().manage
 
-    my_json = f"Profiles/{USER}.json"
-    with open(my_json, "r") as f:
-        user = json.load(f)
+    with open(f"Profiles/{username}.json") as f:
+        user_data = json.load(f)
 
     while True:
-        nearest = NearestNeighbors().get
-        recommendations = RecommendationHandler().get
-        clicks, impressions = DataCollector()
+        nearest = NearestNeighbors(username).get
+        recommendations = RecommendationHandler(nearest).get
+
+        clicks, impressions = DataCollector(recommendations)
         DataHandler(clicks, impressions)
 
         if proceed():
