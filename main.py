@@ -142,9 +142,8 @@ class DataHandler:
 class NearestNeighbors:
     def __init__(self, name: str):
         self.directory = os.listdir('Profiles/')
-        self.directory.remove(f'{name}.json')
-        self.unseen_files = set(self.directory)
         self.k_neighbors = round(len(self.directory) ** 0.6666666666666666)
+        self.directory.remove(f'{name}.json')
 
     @staticmethod
     def calculate_difference(d1: dict, d2: dict) -> float:
@@ -156,8 +155,8 @@ class NearestNeighbors:
         return key_difference_sum / len(shared_keys)
 
     def get_unseen_profile(self) -> dict:
-        random_file = random.choice(list(self.unseen_files))
-        self.unseen_files.remove(random_file)
+        random_file = random.choice(self.directory)
+        self.directory.remove(random_file)
 
         with open(f"Profiles/{random_file}") as file:
             json_data = json.load(file)["cpi"]
@@ -180,7 +179,6 @@ class NearestNeighbors:
 
 class RecommendationHandler:
     def __init__(self, nearest_neighbors: list):
-        self.seen = set()
         self.nearest = self.merge(*nearest_neighbors)
         self.nearest = {k: v for k, v in self.nearest.items() if k in nearby_foods}
 
@@ -193,7 +191,7 @@ class RecommendationHandler:
         return {k: sum(v) / len(v) for k, v in result.items()}
 
     @staticmethod
-    def suggested_ele(d1):
+    def generate_suggestions(d1):
         seen = []
         unseen = []
         weights = []
@@ -208,45 +206,40 @@ class RecommendationHandler:
         if unseen:
             length = len(unseen)
             weights.extend([sum(weights) / length * 0.1111111111111111] * length)
-        return random.choices(keys, weights)[0]
+
+        selected_keys = set()
+        while len(selected_keys) < 6:
+            selected_keys.add(random.choices(keys, weights)[0])
+
+        return list(selected_keys)
 
     @property
     def get(self) -> list:
-        r = []
-
-        while True:
-            item = self.suggested_ele(self.nearest)
-            if item in self.seen:
-                continue
-
-            self.seen.add(item)
-            r.append(item)
-
-            if len(r) == 6:
-                break
-
-        return sorted(r, key=lambda x: self.nearest[x], reverse=True)
+        return self.generate_suggestions(self.nearest)
 
 
 def proceed() -> int:
     print("Do you want to proceed or retry?")
-    return int(input("Enter 1 to Proceed or 2 to Retry: ")) == 1
+    return input("Enter 1 to Proceed or 2 to Retry: ") == "1"
 
 
 if __name__ == '__main__':
-    username = AccountManager().manage
+    try:
+        username = AccountManager().manage
 
-    with open(f"Profiles/{username}.json") as f:
-        user_data = json.load(f)
+        with open(f"Profiles/{username}.json") as f:
+            user_data = json.load(f)
 
-    while True:
-        nearest = NearestNeighbors(username).get
-        recommendations = RecommendationHandler(nearest).get
+        while True:
+            nearest = NearestNeighbors(username).get
+            recommendations = RecommendationHandler(nearest).get
 
-        clicks, impressions = DataCollector(recommendations)
-        DataHandler(clicks, impressions)
+            clicks, impressions = DataCollector(recommendations)
+            DataHandler(clicks, impressions)
 
-        if proceed():
-            break
+            if proceed():
+                break
 
-    print("Loading Search Results...")
+        print("Loading Search Results...")
+    except KeyboardInterrupt:
+        raise SystemExit
