@@ -51,10 +51,11 @@ class AccountManager:
 
                 if account[USER] == PASS:
                     return USER
+                else:
+                    print("Invalid username/password combination.")
             except (FileNotFoundError, KeyError):
                 print("Could not load profile.")
 
-            print("Invalid username/password combination.")
 
         print("You've exceeded the number of login attempts.")
         raise SystemExit
@@ -129,7 +130,6 @@ class DataHandler:
 
         return d3
 
-    # Should user_data rely on global?
     def update(self):
         user_data["clicks"] = self.clicks
         user_data["impressions"] = self.impressions
@@ -140,45 +140,48 @@ class DataHandler:
 
 
 class NearestNeighbors:
-    def __init__(self, name):
-        self.seen_files = set(f'{name}.json')
+    def __init__(self, name: str):
         self.directory = os.listdir('Profiles/')
-        self.num_neighbors = range(round(len(self.directory) ** 0.6666666666666666))
+        self.directory.remove(f'{name}.json')
+        self.unseen_files = set(self.directory)
+        self.k_neighbors = round(len(self.directory) ** 0.6666666666666666)
 
     @staticmethod
     def calculate_difference(d1: dict, d2: dict) -> float:
         shared_keys = d1.keys() & d2.keys()
         if not shared_keys:
-            return 0.00
+            return 0.0
 
         key_difference_sum = sum(abs(d1[k] - d2[k]) for k in shared_keys)
         return key_difference_sum / len(shared_keys)
 
-    def get_unseen_profile(self) -> tuple:
-        unseen_files = set(self.directory) - self.seen_files
-        random_file = random.choice(list(unseen_files))
-        self.seen_files.add(random_file)
+    def get_unseen_profile(self) -> dict:
+        random_file = random.choice(list(self.unseen_files))
+        self.unseen_files.remove(random_file)
 
-        with open(os.path.join('Profiles/', random_file)) as file:
-            json_data = dict(json.load(file)["cpi"])
+        with open(f"Profiles/{random_file}") as file:
+            json_data = json.load(file)["cpi"]
 
-        return random_file, json_data
+        return json_data
 
     @property
     def get(self) -> list:
-        data = []
-        for _ in self.num_neighbors:
-            u, json_data = self.get_unseen_profile()
-            similarity = self.calculate_difference(user_data["cpi"], json_data)
-            data.append((similarity, u, json_data))
+        dicts = []
+        scores = []
+        for _ in range(self.k_neighbors):
+            json_data = self.get_unseen_profile()
+            dicts.append(json_data)
 
-        return sorted(data, key=lambda x: x[0])
+            similarity = self.calculate_difference(json_data, user_data["cpi"])
+            scores.append(similarity)
+
+        return sorted(dicts, key=lambda x: scores[dicts.index(x)])[:3]
 
 
 class RecommendationHandler:
-    def __init__(self, nearest_neighbors):
+    def __init__(self, nearest_neighbors: list):
         self.seen = set()
-        self.nearest = self.merge(*[d[-1] for d in nearest_neighbors[:3]])
+        self.nearest = self.merge(*nearest_neighbors)
         self.nearest = {k: v for k, v in self.nearest.items() if k in nearby_foods}
 
     @staticmethod
