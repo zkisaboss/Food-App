@@ -77,16 +77,16 @@ class AccountManager:
 
 
 class DataCollector:
-    def __init__(self, rec):
+    def __init__(self, r):
         self.clicks = {}
         self.impressions = {}
-        self.recommendations = rec
+        self.recommendations = r
         self.collect_data()
 
     @staticmethod
     def arrange(a: str, b: str) -> tuple:
         print(f"Do you prefer: {a} or {b}?")
-        return (a, b) if int(input("Enter 1 for the first option or 2 for the second: ")) == 1 else (b, a)
+        return (a, b) if input("Enter 1 for the first option or 2 for the second: ") == "1" else (b, a)
 
     def store(self, a: str, b: str):
         self.clicks[a] = self.clicks.get(a, 0) + 1
