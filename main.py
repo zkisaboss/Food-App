@@ -3,7 +3,6 @@ import os
 import random
 
 
-# Implement TensorFlow recommendations instead of static methods.
 nearby_foods = {"avocado toast", "beef wellington", "burritos", "chicken and rice", "chicken stir fry", "chicken wings",
                 "crab legs", "crêpes", "dumplings", "french toast", "gnocchi", "grilled oysters", "grilled salmon",
                 "hamburgers", "lobster tail", "pizza", "quesadillas", "ramen noodles", "shrimp scampi", "smoothies",
@@ -211,6 +210,10 @@ class RecommendationHandler:
         keys, weights = self.calculate_values(self.nearest)
         return self.generate_suggestions(keys, weights)
 
+"""
+For each key upload a corresponding immage.
+Create a visual interface to display images.
+"""
 
 def proceed() -> int:
     print("\nDo you want to proceed or retry?")
