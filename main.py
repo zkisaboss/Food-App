@@ -3,7 +3,6 @@ import os
 import random
 
 
-# Implement TensorFlow recommendations instead of static methods.
 nearby_foods = {"avocado toast", "beef wellington", "burritos", "chicken and rice", "chicken stir fry", "chicken wings",
                 "crab legs", "crêpes", "dumplings", "french toast", "gnocchi", "grilled oysters", "grilled salmon",
                 "hamburgers", "lobster tail", "pizza", "quesadillas", "ramen noodles", "shrimp scampi", "smoothies",
