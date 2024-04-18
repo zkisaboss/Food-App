@@ -1,0 +1,39 @@
+import 'package:flutter/material.dart';
+
+void main() => runApp(MaterialApp(
+      title: 'Button Counter App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: ButtonCounter(),
+    ));
+
+class ButtonCounter extends StatefulWidget {
+  @override
+  _ButtonCounterState createState() => _ButtonCounterState();
+}
+
+class _ButtonCounterState extends State<ButtonCounter> {
+  int button1Count = 0;
+  int button2Count = 0;
+
+  void incrementButton1Count() => setState(() => button1Count++);
+  void incrementButton2Count() => setState(() => button2Count++);
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        body: Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: incrementButton1Count,
+                child: Text('$button1Count'),
+              ),
+              ElevatedButton(
+                onPressed: incrementButton2Count,
+                child: Text('$button2Count'),
+              ),
+            ],
+          ),
+        ),
+      );
+}
