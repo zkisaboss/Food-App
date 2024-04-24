@@ -129,7 +129,7 @@ class DataHandler:
 class NearestNeighbors:
     def __init__(self, name: str):
         self.directory = os.listdir('Profiles/')
-        self.k_neighbors = round(len(self.directory) ** 0.6666666666666666)
+        self.num_neighbors = round(len(self.directory) ** 0.6666666666666666)
         self.directory.remove(f'{name}.json')
 
     @staticmethod
@@ -152,21 +152,20 @@ class NearestNeighbors:
 
     @property
     def fetch(self) -> list:
-        dicts = []
-        scores = []
-        for _ in range(self.k_neighbors):
-            json_data = self.retrieve_profile()
-            dicts.append(json_data)
-            similarity = self.calculate_difference(json_data, user_data["cpi"])
-            scores.append(similarity)
+        profiles = []
+        similarities = []
+        for _ in range(self.num_neighbors):
+            profile = self.retrieve_profile()
+            profiles.append(profile)
+            similarity_score = self.calculate_similarity(profile, user_data["cpi"])
+            similarities.append(similarity_score)
 
-        return sorted(dicts, key=lambda x: scores[dicts.index(x)])[:3]
+        return sorted(profiles, key=lambda x: similarities[profiles.index(x)])[:3]
 
 
 class RecommendationHandler:
     def __init__(self, nearest_neighbors: list):
         self.nearest = self.merge(*nearest_neighbors)
-        self.nearest = {k: v for k, v in self.nearest.items() if k in nearby_foods}
 
     @staticmethod
     def merge(*dicts) -> dict:
@@ -175,7 +174,7 @@ class RecommendationHandler:
             for k, v in d.items():
                 result[k] = result.get(k, []) + [v]
 
-        return {k: sum(v) / len(v) for k, v in result.items()}
+        return {k: sum(v) / len(v) for k, v in result.items() if k in nearby_foods}
 
     @staticmethod
     def calculate_values(d1: dict) -> tuple:
