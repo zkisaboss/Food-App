@@ -133,7 +133,7 @@ class NearestNeighbors:
         self.directory.remove(f'{name}.json')
 
     @staticmethod
-    def calculate_difference(d1: dict, d2: dict) -> float:
+    def calculate_similarity(d1: dict, d2: dict) -> float:
         shared_keys = d1.keys() & d2.keys()
         if not shared_keys:
             return 0.0
