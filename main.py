@@ -118,9 +118,9 @@ class DataHandler:
         return d3
 
     def store_changes(self):
-        user_data.update(clicks=self.clicks,
-                         impressions=self.impressions,
-                         cpi=self.calculate_cpi(self.clicks, self.impressions))
+        user_data["clicks"] = self.clicks
+        user_data["impressions"] = self.impressions
+        user_data["cpi"] = self.calculate_cpi(self.clicks, self.impressions)
 
         with open(f"Profiles/{username}.json", "w") as file:
             json.dump(user_data, file, indent=4, separators=(',', ': '))
